@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">CoursePaper</string>
+    <string name="enter_your_email_and_password_to_log_in">Enter your email and password to log in</string>
+    <string name="register">Register</string>
+    <string name="log_in">Log in</string>
+    <string name="password">Password</string>
+    <string name="email">Email</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+</resources>
