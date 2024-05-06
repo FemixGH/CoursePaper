@@ -24,15 +24,15 @@ public class MainFragment extends Fragment {
 
         List<Theme> items = new ArrayList<>();
         List<SubTheme> subThemes1 = new ArrayList<>();
-        subThemes1.add(new SubTheme("города"));
-        subThemes1.add(new SubTheme("парки"));
-        subThemes1.add(new SubTheme("дороги"));
+        subThemes1.add(new SubTheme("города", "Author1", "Author2", R.drawable.avatar1, R.drawable.avatar2));
+        subThemes1.add(new SubTheme("парки", "Author3", "Author4", R.drawable.avatar1, R.drawable.avatar2));
+        subThemes1.add(new SubTheme("дороги", "Author5", "Author6", R.drawable.avatar1, R.drawable.avatar2));
         items.add(new Theme("Инфраструктура", subThemes1));
 
         List<SubTheme> subThemes2 = new ArrayList<>();
-        subThemes2.add(new SubTheme("экзистенциализм"));
-        subThemes2.add(new SubTheme("реляцивизм"));
-        subThemes2.add(new SubTheme("космоцентризм"));
+        subThemes2.add(new SubTheme("экзистенциализм", "Author7", "Author8", R.drawable.avatar1, R.drawable.avatar2));
+        subThemes2.add(new SubTheme("реляцивизм", "Author9", "Author10", R.drawable.avatar1, R.drawable.avatar2));
+        subThemes2.add(new SubTheme("космоцентризм", "Author11", "Author12", R.drawable.avatar1, R.drawable.avatar2));
         items.add(new Theme("Философия", subThemes2));
 
         recyclerView = view.findViewById(R.id.recyclerview);
@@ -55,4 +55,5 @@ public class MainFragment extends Fragment {
         ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(false);
     }
 }
+
 

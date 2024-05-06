@@ -11,13 +11,13 @@ import java.util.List;
 
 public class SubThemeAdapter extends RecyclerView.Adapter<ViewHolderSubTheme> {
 
+    Context context;
+    List<SubTheme> subThemeList;
+
     public SubThemeAdapter(Context context, List<SubTheme> subThemeList) {
         this.context = context;
         this.subThemeList = subThemeList;
     }
-
-    Context context;
-    List<SubTheme> subThemeList;
 
     @NonNull
     @Override
@@ -28,6 +28,10 @@ public class SubThemeAdapter extends RecyclerView.Adapter<ViewHolderSubTheme> {
     @Override
     public void onBindViewHolder(@NonNull ViewHolderSubTheme holder, int position) {
         holder.subThemeView.setText(subThemeList.get(position).getSubTheme());
+        holder.firstAuthorName.setText(subThemeList.get(position).getFirstAuthorName());
+        holder.secondAuthorName.setText(subThemeList.get(position).getSecondAuthorName());
+        holder.firstAuthorImg.setImageResource(subThemeList.get(position).getFirstAuthorImg());
+        holder.secondAuthorImg.setImageResource(subThemeList.get(position).getSecondAuthorImg());
     }
 
     @Override
@@ -35,3 +39,4 @@ public class SubThemeAdapter extends RecyclerView.Adapter<ViewHolderSubTheme> {
         return subThemeList.size();
     }
 }
+

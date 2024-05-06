@@ -1,17 +1,51 @@
-<?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginTop="10dp"
-    xmlns:tools="http://schemas.android.com/tools">
+    android:layout_marginLeft="10dp"
+    android:layout_marginRight="10dp"
+    android:background="@drawable/rounded_corner_background">
+
+    <ImageView
+        android:id="@+id/first_author_img"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_alignParentStart="true"
+        android:src="@drawable/avatar1" />
+
+    <TextView
+        android:id="@+id/first_author_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/first_author_img"
+        android:layout_alignStart="@id/first_author_img"
+        android:text="Вася Пупкин" />
 
     <TextView
         android:id="@+id/subtheme_name"
-        android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:layout_centerVertical="true"
-        android:text="Name of subtheme"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toEndOf="@id/first_author_img"
+        android:layout_toStartOf="@id/second_author_img"
+        android:layout_alignTop="@id/first_author_img"
+        android:text="Нужно ли ремонтировать бордюры каждые полгода"
         android:gravity="center"
-        android:background="@drawable/rounded_corner_background"/>
+        android:layout_marginTop="10dp"/>
+
+    <ImageView
+        android:id="@+id/second_author_img"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_alignParentRight="true"
+        android:src="@drawable/avatar2" />
+
+    <TextView
+        android:id="@+id/second_author_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/second_author_img"
+        android:layout_alignRight="@id/second_author_img"
+        android:text="Иван иванов" />
 
 </RelativeLayout>

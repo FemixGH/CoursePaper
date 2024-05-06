@@ -4,10 +4,50 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 public class SubTheme implements Parcelable {
-    String subTheme;
+    public String getFirstAuthorName() {
+        return firstAuthorName;
+    }
 
-    public SubTheme(String subTheme) {
+    public void setFirstAuthorName(String firstAuthorName) {
+        this.firstAuthorName = firstAuthorName;
+    }
+
+    public String getSecondAuthorName() {
+        return secondAuthorName;
+    }
+
+    public void setSecondAuthorName(String secondAuthorName) {
+        this.secondAuthorName = secondAuthorName;
+    }
+
+    public int getFirstAuthorImg() {
+        return firstAuthorImg;
+    }
+
+    public void setFirstAuthorImg(int firstAuthorImg) {
+        this.firstAuthorImg = firstAuthorImg;
+    }
+
+    public int getSecondAuthorImg() {
+        return secondAuthorImg;
+    }
+
+    public void setSecondAuthorImg(int secondAuthorImg) {
+        this.secondAuthorImg = secondAuthorImg;
+    }
+
+    String subTheme;
+    String firstAuthorName;
+    String secondAuthorName;
+    int firstAuthorImg;
+    int secondAuthorImg;
+
+    public SubTheme(String subTheme, String firstAuthorName, String secondAuthorName, int firstAuthorImg, int secondAuthorImg) {
         this.subTheme = subTheme;
+        this.firstAuthorName = firstAuthorName;
+        this.secondAuthorName = secondAuthorName;
+        this.firstAuthorImg = firstAuthorImg;
+        this.secondAuthorImg = secondAuthorImg;
     }
 
     protected SubTheme(Parcel in) {
