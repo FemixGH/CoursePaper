@@ -1,20 +1,23 @@
 package com.example.coursepaper;
 
 import android.content.Context;
+import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
 public class SubThemeAdapter extends RecyclerView.Adapter<ViewHolderSubTheme> {
 
-    Context context;
-    List<SubTheme> subThemeList;
+    private AppCompatActivity context;
+    private List<SubTheme> subThemeList;
 
-    public SubThemeAdapter(Context context, List<SubTheme> subThemeList) {
+    public SubThemeAdapter(AppCompatActivity context, List<SubTheme> subThemeList) {
         this.context = context;
         this.subThemeList = subThemeList;
     }
@@ -32,6 +35,32 @@ public class SubThemeAdapter extends RecyclerView.Adapter<ViewHolderSubTheme> {
         holder.secondAuthorName.setText(subThemeList.get(position).getSecondAuthorName());
         holder.firstAuthorImg.setImageResource(subThemeList.get(position).getFirstAuthorImg());
         holder.secondAuthorImg.setImageResource(subThemeList.get(position).getSecondAuthorImg());
+
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int position = holder.getAdapterPosition();
+                SubTheme selectedSubTheme = subThemeList.get(position);
+
+
+
+                Bundle bundle = new Bundle();
+                bundle.putString("themeName", selectedSubTheme.getSubTheme());
+                bundle.putString("subTheme", selectedSubTheme.getSubTheme());
+                bundle.putString("firstAuthorName", selectedSubTheme.getFirstAuthorName());
+                bundle.putString("secondAuthorName", selectedSubTheme.getSecondAuthorName());
+                bundle.putInt("firstAuthorImg", selectedSubTheme.getFirstAuthorImg());
+                bundle.putInt("secondAuthorImg", selectedSubTheme.getSecondAuthorImg());
+
+                MainWindowFragment mainWindowFragment = new MainWindowFragment();
+                mainWindowFragment.setArguments(bundle);
+
+                context.getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.fragment_container, mainWindowFragment)
+                        .addToBackStack(null)
+                        .commit();
+            }
+        });
     }
 
     @Override
@@ -39,4 +68,5 @@ public class SubThemeAdapter extends RecyclerView.Adapter<ViewHolderSubTheme> {
         return subThemeList.size();
     }
 }
+
 

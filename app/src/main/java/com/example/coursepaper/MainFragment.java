@@ -1,14 +1,24 @@
 package com.example.coursepaper;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,29 +26,52 @@ import java.util.List;
 public class MainFragment extends Fragment {
 
     private RecyclerView recyclerView;
+    private ThemeAdapter themeAdapter;
+    private List<Theme> themeList;
+    private DatabaseReference databaseReference;
 
+    @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.main_fragment, container, false);
 
-        List<Theme> items = new ArrayList<>();
-        List<SubTheme> subThemes1 = new ArrayList<>();
-        subThemes1.add(new SubTheme("города", "Author1", "Author2", R.drawable.avatar1, R.drawable.avatar2));
-        subThemes1.add(new SubTheme("парки", "Author3", "Author4", R.drawable.avatar1, R.drawable.avatar2));
-        subThemes1.add(new SubTheme("дороги", "Author5", "Author6", R.drawable.avatar1, R.drawable.avatar2));
-        items.add(new Theme("Инфраструктура", subThemes1));
-
-        List<SubTheme> subThemes2 = new ArrayList<>();
-        subThemes2.add(new SubTheme("экзистенциализм", "Author7", "Author8", R.drawable.avatar1, R.drawable.avatar2));
-        subThemes2.add(new SubTheme("реляцивизм", "Author9", "Author10", R.drawable.avatar1, R.drawable.avatar2));
-        subThemes2.add(new SubTheme("космоцентризм", "Author11", "Author12", R.drawable.avatar1, R.drawable.avatar2));
-        items.add(new Theme("Философия", subThemes2));
-
         recyclerView = view.findViewById(R.id.recyclerview);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        ThemeAdapter adapter = new ThemeAdapter((MainActivity) getActivity(), getActivity().getApplicationContext(), items);
-        recyclerView.setAdapter(adapter);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        themeList = new ArrayList<>();
+        themeAdapter = new ThemeAdapter((MainActivity) getActivity(), getContext(), themeList);
+        recyclerView.setAdapter(themeAdapter);
+
+        databaseReference = FirebaseDatabase.getInstance().getReference("Discussions");
+        databaseReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                themeList.clear();
+                for (DataSnapshot themeSnapshot : snapshot.getChildren()) {
+                    String themeName = themeSnapshot.getKey();
+                    List<SubTheme> subThemeList = new ArrayList<>();
+                    for (DataSnapshot subThemeSnapshot : themeSnapshot.getChildren()) {
+                        String subThemeName = subThemeSnapshot.getKey();
+
+                        Iterable<DataSnapshot> childrenSnapshots = subThemeSnapshot.getChildren();
+                        String firstAuthorName = childrenSnapshots.iterator().next().getKey();
+                        String secondAuthorName = childrenSnapshots.iterator().next().getKey();
+
+
+                        int firstAuthorImg = R.drawable.avatar1;
+                        int secondAuthorImg = R.drawable.avatar2;
+                        subThemeList.add(new SubTheme(subThemeName, firstAuthorName, secondAuthorName, firstAuthorImg, secondAuthorImg));
+                    }
+                    themeList.add(new Theme(themeName, subThemeList));
+                }
+                themeAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(getContext(), "Failed to load data from Firebase", Toast.LENGTH_SHORT).show();
+            }
+        });
 
         return view;
     }

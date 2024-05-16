@@ -44,22 +44,19 @@ public class RegistrationFragment extends Fragment {
                         binding.usernameEditText.getText().toString().isEmpty()) {
                     Toast.makeText(getActivity(), "Fields can not be empty", Toast.LENGTH_SHORT).show();
                 } else {
-                    FirebaseAuth.getInstance().createUserWithEmailAndPassword(binding.emailEditText.getText().toString(), binding.passwordEditText.getText().toString()).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                        @Override
-                        public void onComplete(@NonNull Task<AuthResult> task) {
-                            if (task.isSuccessful()){
-                                HashMap<String, String> userInfo = new HashMap<>();
-                                userInfo.put("email", binding.emailEditText.getText().toString());
-                                userInfo.put("password", binding.passwordEditText.getText().toString());
-                                FirebaseDatabase.getInstance().getReference().child("Users").child(FirebaseAuth.getInstance().getCurrentUser().getUid())
-                                        .setValue(userInfo);
+                    FirebaseAuth.getInstance().createUserWithEmailAndPassword(binding.emailEditText.getText().toString(), binding.passwordEditText.getText().toString()).addOnCompleteListener(task -> {
+                        if (task.isSuccessful()){
+                            HashMap<String, String> userInfo = new HashMap<>();
+                            userInfo.put("email", binding.emailEditText.getText().toString());
+                            userInfo.put("password", binding.passwordEditText.getText().toString());
+                            FirebaseDatabase.getInstance().getReference().child("Users").child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                                    .setValue(userInfo);
 
-                                MainFragment mainFragment = new MainFragment();
-                                getActivity().getSupportFragmentManager()
-                                        .beginTransaction()
-                                        .replace(R.id.fragment_container, mainFragment)
-                                        .commit();
-                            }
+                            MainFragment mainFragment = new MainFragment();
+                            getActivity().getSupportFragmentManager()
+                                    .beginTransaction()
+                                    .replace(R.id.fragment_container, mainFragment)
+                                    .commit();
                         }
                     });
 

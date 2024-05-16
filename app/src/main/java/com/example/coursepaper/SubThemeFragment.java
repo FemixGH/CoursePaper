@@ -26,7 +26,7 @@ public class SubThemeFragment extends Fragment {
 
         recyclerView = view.findViewById(R.id.recyclerview);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        recyclerView.setAdapter(new SubThemeAdapter(getActivity().getApplicationContext(), items));
+        recyclerView.setAdapter(new SubThemeAdapter((AppCompatActivity) getActivity(), items));
 
         return view;
     }
