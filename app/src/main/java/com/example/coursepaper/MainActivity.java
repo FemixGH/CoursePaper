@@ -26,6 +26,9 @@ import com.google.firebase.database.ValueEventListener;
 public class MainActivity extends AppCompatActivity {
     private DrawerLayout drawer;
     public ActionBarDrawerToggle toggle;
+    private View headerView;
+    private TextView usernameTextView, emailTextView;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null) {
             DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("users/" + user.getUid());
-            databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            databaseReference.addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     String username = snapshot.child("username").getValue(String.class);
@@ -57,6 +60,9 @@ public class MainActivity extends AppCompatActivity {
 
                     usernameTextView.setText(username);
                     emailTextView.setText(email);
+
+                    // вызов метода updateHeader() для обновления заголовка навигационного меню
+
                 }
 
                 @Override
@@ -76,25 +82,14 @@ public class MainActivity extends AppCompatActivity {
                 int id = item.getItemId();
 
                 if (id == R.id.home) {
-                    MainFragment mainFragment = new MainFragment();
-                    getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.fragment_container, mainFragment)
-                            .addToBackStack(null)
-                            .commit();
-
-                    Toast.makeText(MainActivity.this, "Ты уже дома", Toast.LENGTH_SHORT).show();
+                    replaceFragment(new MainFragment());
                 } else if (id == R.id.contact) {
                     Toast.makeText(MainActivity.this, "Скоро здесь будут контакты", Toast.LENGTH_SHORT).show();
                 } else if (id == R.id.settings) {
                     Toast.makeText(MainActivity.this, "Когда нибудь реализуются настройки", Toast.LENGTH_SHORT).show();
                 } else if (id == R.id.exit){
                     FirebaseAuth.getInstance().signOut();
-                    // перейти на экран входа
-                    EnterFragment enterFragment = new EnterFragment();
-                    getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.fragment_container, enterFragment)
-                            .addToBackStack(null)
-                            .commit();
+                    replaceFragment(new EnterFragment());
                 }
 
 
@@ -104,17 +99,11 @@ public class MainActivity extends AppCompatActivity {
         });
 
         if (FirebaseAuth.getInstance().getCurrentUser() == null) {
-            EnterFragment enterFragment = new EnterFragment();
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fragment_container, enterFragment)
-                    .addToBackStack(null)
-                    .commit();
+            replaceFragment(new EnterFragment());
+
         } else {
-            MainFragment mainFragment = new MainFragment();
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fragment_container, mainFragment)
-                    .addToBackStack(null)
-                    .commit();
+            replaceFragment(new MainFragment());
+
         }
     }
 
@@ -141,6 +130,31 @@ public class MainActivity extends AppCompatActivity {
         return toggle;
     }
 
+    public void updateHeader() {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user != null) {
+            DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("users/" + user.getUid());
+            databaseReference.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    String username = snapshot.child("username").getValue(String.class);
+                    String email = snapshot.child("email").getValue(String.class);
 
+                    usernameTextView.setText(username);
+                    emailTextView.setText(email);
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    // обработка ошибки
+                }
+            });
+        }
+    }
+    @Override
+    protected void onStart() {
+        super.onStart();
+        updateHeader();
+    }
 
 }
