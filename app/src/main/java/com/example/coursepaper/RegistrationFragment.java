@@ -46,7 +46,9 @@ public class RegistrationFragment extends Fragment {
                                 if (task.isSuccessful()) {
                                     String userId = task.getResult().getUser().getUid();
                                     DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("users/" + userId);
-                                    databaseReference.setValue(new User(username, email));
+                                    // Create a new User object with the isAdmin field set to false
+                                    User newUser = new User(username, email, false);
+                                    databaseReference.setValue(newUser);
 
                                     MainFragment mainFragment = new MainFragment();
                                     getActivity().getSupportFragmentManager()
@@ -61,20 +63,12 @@ public class RegistrationFragment extends Fragment {
             }
         });
 
+
+
+
         return view;
     }
 
-    public static class User {
-        public String username;
-        public String email;
 
-        public User() {
-        }
-
-        public User(String username, String email) {
-            this.username = username;
-            this.email = email;
-        }
-    }
 }
 
