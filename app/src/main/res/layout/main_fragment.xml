@@ -10,4 +10,13 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/recyclerview"/>
+
+    <Button
+        android:id="@+id/add_theme_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Add Theme"
+        app:layout_constraintBottom_toBottomOf="@+id/recyclerview"
+        app:layout_constraintEnd_toEndOf="parent" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

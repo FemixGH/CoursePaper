@@ -87,7 +87,16 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(MainActivity.this, "Скоро здесь будут контакты", Toast.LENGTH_SHORT).show();
                 } else if (id == R.id.settings) {
                     Toast.makeText(MainActivity.this, "Когда нибудь реализуются настройки", Toast.LENGTH_SHORT).show();
+                } else if (id == R.id.exit){
+                    FirebaseAuth.getInstance().signOut();
+                    // перейти на экран входа
+                    EnterFragment enterFragment = new EnterFragment();
+                    getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.fragment_container, enterFragment)
+                            .addToBackStack(null)
+                            .commit();
                 }
+
 
                 drawer.closeDrawer(GravityCompat.START);
                 return true;

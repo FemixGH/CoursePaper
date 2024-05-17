@@ -17,5 +17,9 @@
             android:icon="@drawable/ic_settings_24dp"
             android:title="Settings"
             />
+        <item
+            android:id="@+id/exit"
+            android:title="Exit"
+            android:icon="@drawable/baseline_exit_to_app_24"/>
     </group>
 </menu>

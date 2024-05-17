@@ -1,14 +1,18 @@
 package com.example.coursepaper;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -30,6 +34,9 @@ public class MainFragment extends Fragment {
     private List<Theme> themeList;
     private DatabaseReference databaseReference;
 
+    private Button addThemeButton;
+    private boolean isCurrentUserAdmin = false;
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -41,6 +48,12 @@ public class MainFragment extends Fragment {
         themeList = new ArrayList<>();
         themeAdapter = new ThemeAdapter((MainActivity) getActivity(), getContext(), themeList);
         recyclerView.setAdapter(themeAdapter);
+
+
+        addThemeButton = view.findViewById(R.id.add_theme_button);
+        addThemeButton.setOnClickListener(v -> showAddThemeDialog());
+
+
 
         databaseReference = FirebaseDatabase.getInstance().getReference("Discussions");
         databaseReference.addValueEventListener(new ValueEventListener() {
@@ -87,6 +100,58 @@ public class MainFragment extends Fragment {
         super.onPause();
         ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(false);
     }
+
+
+    private void addThemeToFirebase(final String themeName) {
+        databaseReference.child(themeName).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (!snapshot.exists()) {
+                    snapshot.getRef().setValue("");
+                    Toast.makeText(getContext(), "Theme added successfully", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(getContext(), "Theme already exists", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(getContext(), "Failed to add theme", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+
+
+    private void showAddThemeDialog() {
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getContext());
+        LayoutInflater inflater = getLayoutInflater();
+        final View dialogView = inflater.inflate(R.layout.add_theme_dialog, null);
+        dialogBuilder.setView(dialogView);
+
+        final EditText themeNameEditText = dialogView.findViewById(R.id.theme_name_edit_text);
+
+        dialogBuilder.setTitle("Add New Theme");
+        dialogBuilder.setPositiveButton("Add", (dialog, whichButton) -> {
+            String themeName = themeNameEditText.getText().toString().trim();
+            if (!themeName.isEmpty()) {
+                addThemeToFirebase(themeName);
+            } else {
+                Toast.makeText(getContext(), "Theme name cannot be empty", Toast.LENGTH_SHORT).show();
+            }
+        });
+        dialogBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                // Cancel
+            }
+        });
+
+        AlertDialog b = dialogBuilder.create();
+        b.show();
+    }
+
+
+
 }
 
 
