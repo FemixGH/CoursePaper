@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,6 +12,9 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 
 import com.example.coursepaper.databinding.MainWindowFragmentBinding;
@@ -31,6 +35,8 @@ public class MainWindowFragment extends Fragment {
     private TextView secondAuthorName;
     private String themeName;
 
+    private DrawerLayout.SimpleDrawerListener drawerListener;
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -40,6 +46,10 @@ public class MainWindowFragment extends Fragment {
         secondAuthorExplanation = view.findViewById(R.id.second_author_explanation);
         firstAuthorName = view.findViewById(R.id.first_author_name);
         secondAuthorName = view.findViewById(R.id.second_author_name);
+
+        DrawerLayout drawer = ((MainActivity) getActivity()).getDrawerLayout();
+
+
 
 
         Bundle bundle = getArguments();
@@ -90,4 +100,25 @@ public class MainWindowFragment extends Fragment {
 
         return view;
     }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setHomeButtonEnabled(true);
+
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setHomeButtonEnabled(false);
+
+    }
+
+
+
+
+
 }

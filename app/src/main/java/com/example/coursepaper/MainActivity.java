@@ -1,7 +1,10 @@
 package com.example.coursepaper;
 
 import android.os.Bundle;
+import android.os.ParcelUuid;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -13,10 +16,16 @@ import androidx.fragment.app.Fragment;
 
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 public class MainActivity extends AppCompatActivity {
     private DrawerLayout drawer;
-    private ActionBarDrawerToggle toggle;
+    public ActionBarDrawerToggle toggle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,6 +41,34 @@ public class MainActivity extends AppCompatActivity {
 //        getSupportActionBar().setDisplayHomeAsUpEnabled(true);  включить, если надо будет изначально бургер меню включенным быть
 
         NavigationView navigationView = findViewById(R.id.nav_view);
+        View headerView = navigationView.getHeaderView(0);
+
+        TextView usernameTextView = headerView.findViewById(R.id.username);
+        TextView emailTextView = headerView.findViewById(R.id.email);
+
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user != null) {
+            DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("users/" + user.getUid());
+            databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    String username = snapshot.child("username").getValue(String.class);
+                    String email = snapshot.child("email").getValue(String.class);
+
+                    usernameTextView.setText(username);
+                    emailTextView.setText(email);
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    // обработка ошибки
+                }
+            });
+        }
+
+
+
+
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -39,6 +76,12 @@ public class MainActivity extends AppCompatActivity {
                 int id = item.getItemId();
 
                 if (id == R.id.home) {
+                    MainFragment mainFragment = new MainFragment();
+                    getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.fragment_container, mainFragment)
+                            .addToBackStack(null)
+                            .commit();
+
                     Toast.makeText(MainActivity.this, "Ты уже дома", Toast.LENGTH_SHORT).show();
                 } else if (id == R.id.contact) {
                     Toast.makeText(MainActivity.this, "Скоро здесь будут контакты", Toast.LENGTH_SHORT).show();
@@ -80,5 +123,15 @@ public class MainActivity extends AppCompatActivity {
                 .addToBackStack(null)
                 .commit();
     }
+
+    public DrawerLayout getDrawerLayout() {
+        return drawer;
+    }
+
+    public ActionBarDrawerToggle getToggle() {
+        return toggle;
+    }
+
+
 
 }
