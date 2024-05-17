@@ -18,6 +18,8 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -33,9 +35,12 @@ public class MainFragment extends Fragment {
     private ThemeAdapter themeAdapter;
     private List<Theme> themeList;
     private DatabaseReference databaseReference;
+    private FirebaseAuth firebaseAuth;
 
     private Button addThemeButton;
+
     private boolean isCurrentUserAdmin = false;
+    private List<AlertDialog> openDialogs = new ArrayList<>();
 
     @Nullable
     @Override
@@ -52,6 +57,42 @@ public class MainFragment extends Fragment {
 
         addThemeButton = view.findViewById(R.id.add_theme_button);
         addThemeButton.setOnClickListener(v -> showAddThemeDialog());
+        Button deleteThemeButton = view.findViewById(R.id.delete_theme_button);
+
+        deleteThemeButton.setOnClickListener(v -> showDeleteThemeDialog());
+
+
+        firebaseAuth = FirebaseAuth.getInstance();
+        FirebaseUser currentFirebaseUser = firebaseAuth.getCurrentUser();
+        if (currentFirebaseUser != null) {
+            String userId = currentFirebaseUser.getUid();
+            DatabaseReference userReference = FirebaseDatabase.getInstance().getReference("users/" + userId);
+            userReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    User user = snapshot.getValue(User.class);
+                    if (user != null && user.isAdmin) {
+                        // Отображаем кнопку добавления темы, если текущий пользователь является администратором
+                        addThemeButton.setVisibility(View.VISIBLE);
+                        addThemeButton.setEnabled(true);
+                        deleteThemeButton.setVisibility(View.VISIBLE);
+                        deleteThemeButton.setEnabled(true);
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    Toast.makeText(getContext(), "Failed to fetch user data from Firebase", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+        else {
+            // Скрываем кнопку добавления темы, если пользователь не авторизован
+            addThemeButton.setVisibility(View.GONE);
+            addThemeButton.setEnabled(false);
+            deleteThemeButton.setVisibility(View.GONE);
+            deleteThemeButton.setEnabled(false);
+        }
 
 
 
@@ -93,6 +134,7 @@ public class MainFragment extends Fragment {
     public void onResume() {
         super.onResume();
         ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        themeAdapter.notifyDataSetChanged();
     }
 
     @Override
@@ -123,6 +165,56 @@ public class MainFragment extends Fragment {
 
 
 
+
+
+
+    private void showDeleteThemeDialog() {
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getContext());
+        LayoutInflater inflater = getLayoutInflater();
+        final View dialogView = inflater.inflate(R.layout.delete_theme_dialog, null);
+        dialogBuilder.setView(dialogView);
+
+        RecyclerView recyclerView = dialogView.findViewById(R.id.recyclerview_delete);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        recyclerView.setAdapter(new ThemeAdapterForDelete(getContext(), themeList, theme -> {
+            AlertDialog.Builder confirmDialogBuilder = new AlertDialog.Builder(getContext());
+            confirmDialogBuilder.setTitle("Delete Theme");
+            confirmDialogBuilder.setMessage("Are you sure you want to delete this theme?");
+            confirmDialogBuilder.setPositiveButton("Yes", (dialog, which) -> {
+                AlertDialog deleteThemeDialog = (AlertDialog) dialog;
+                deleteThemeFromFirebase(theme, deleteThemeDialog);
+            });
+            confirmDialogBuilder.setNegativeButton("No", (dialog, which) -> dialog.dismiss());
+            AlertDialog confirmDialog = confirmDialogBuilder.create();
+            registerDialog(confirmDialog);
+            confirmDialog.show();
+        }));
+
+        dialogBuilder.setTitle("Delete Theme");
+        dialogBuilder.setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
+
+        AlertDialog deleteThemeDialog = dialogBuilder.create();
+        registerDialog(deleteThemeDialog);
+        deleteThemeDialog.show();
+    }
+
+
+
+
+
+
+    private void deleteThemeFromFirebase(Theme theme, AlertDialog deleteThemeDialog) {
+        databaseReference.child(theme.getTheme()).removeValue().addOnSuccessListener(aVoid -> {
+            Toast.makeText(getContext(), "Theme deleted successfully", Toast.LENGTH_SHORT).show();
+            int index = themeList.indexOf(theme);
+            if (index != -1) {
+                themeList.remove(index);
+                themeAdapter.notifyItemRemoved(index);
+            }
+            dismissAllDialogs();  // Dismiss all dialogs after theme deletion
+        }).addOnFailureListener(e -> Toast.makeText(getContext(), "Failed to delete theme", Toast.LENGTH_SHORT).show());
+    }
+
     private void showAddThemeDialog() {
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getContext());
         LayoutInflater inflater = getLayoutInflater();
@@ -130,7 +222,6 @@ public class MainFragment extends Fragment {
         dialogBuilder.setView(dialogView);
 
         final EditText themeNameEditText = dialogView.findViewById(R.id.theme_name_edit_text);
-
         dialogBuilder.setTitle("Add New Theme");
         dialogBuilder.setPositiveButton("Add", (dialog, whichButton) -> {
             String themeName = themeNameEditText.getText().toString().trim();
@@ -140,15 +231,30 @@ public class MainFragment extends Fragment {
                 Toast.makeText(getContext(), "Theme name cannot be empty", Toast.LENGTH_SHORT).show();
             }
         });
-        dialogBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int whichButton) {
-                // Cancel
-            }
-        });
+        dialogBuilder.setNegativeButton("Cancel", (dialog, whichButton) -> dialog.dismiss());
 
         AlertDialog b = dialogBuilder.create();
+        registerDialog(b);
         b.show();
     }
+
+
+
+
+    private void registerDialog(AlertDialog dialog) {
+        openDialogs.add(dialog);
+        dialog.setOnDismissListener(d -> openDialogs.remove(dialog));
+    }
+
+    private void dismissAllDialogs() {
+        for (AlertDialog dialog : new ArrayList<>(openDialogs)) {
+            if (dialog.isShowing()) {
+                dialog.dismiss();
+            }
+        }
+    }
+
+
 
 
 

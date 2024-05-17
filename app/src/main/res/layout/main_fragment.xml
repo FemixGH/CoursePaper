@@ -16,7 +16,17 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Add Theme"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="@+id/recyclerview"
         app:layout_constraintEnd_toEndOf="parent" />
+
+    <Button
+        android:id="@+id/delete_theme_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Remove Theme"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@+id/recyclerview"
+        app:layout_constraintEnd_toStartOf="@+id/add_theme_button" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
