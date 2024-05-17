@@ -10,12 +10,12 @@
         <item
             android:id="@+id/contact"
             android:icon="@drawable/baseline_local_phone_24"
-            android:title="Home"
+            android:title="Contact us"
             />
         <item
             android:id="@+id/settings"
             android:icon="@drawable/ic_settings_24dp"
-            android:title="Home"
+            android:title="Settings"
             />
     </group>
 </menu>

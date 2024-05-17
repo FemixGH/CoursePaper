@@ -30,10 +30,12 @@ public class EnterFragment extends Fragment {
         View view = binding.getRoot();
 
         binding.loginButton.setOnClickListener(view1 -> {
-            if (binding.emailEditText.getText().toString().isEmpty() || binding.passwordEditText.getText().toString().isEmpty()) {
+            String email = binding.emailEditText.getText().toString();
+            String password = binding.passwordEditText.getText().toString();
+            if (email.isEmpty() || password.isEmpty()) {
                 Toast.makeText(getActivity(), "Fields can not be empty", Toast.LENGTH_SHORT).show();
             } else {
-                FirebaseAuth.getInstance().signInWithEmailAndPassword(binding.emailEditText.getText().toString(), binding.passwordEditText.getText().toString())
+                FirebaseAuth.getInstance().signInWithEmailAndPassword(email, password)
                         .addOnCompleteListener(task -> {
                             if (task.isSuccessful()) {
                                 MainFragment mainFragment = new MainFragment();
@@ -41,11 +43,12 @@ public class EnterFragment extends Fragment {
                                         .beginTransaction()
                                         .replace(R.id.fragment_container, mainFragment)
                                         .commit();
+                            } else {
+                                Toast.makeText(getActivity(), "Login failed", Toast.LENGTH_SHORT).show();
                             }
                         });
             }
         });
-
 
         binding.registerButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -58,10 +61,7 @@ public class EnterFragment extends Fragment {
             }
         });
 
-
         return view;
-
-
     }
-
 }
+
