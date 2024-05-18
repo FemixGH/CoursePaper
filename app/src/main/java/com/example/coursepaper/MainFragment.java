@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -54,10 +55,10 @@ public class MainFragment extends Fragment {
         themeAdapter = new ThemeAdapter((MainActivity) getActivity(), getContext(), themeList);
         binding.recyclerview.setAdapter(themeAdapter);
 
-        Button addThemeButton = binding.addThemeButton;
+        ImageButton addThemeButton = binding.addThemeButton;
         binding.addThemeButton.setOnClickListener(v -> showAddThemeDialog());
 
-        Button deleteThemeButton = binding.deleteThemeButton;
+        ImageButton deleteThemeButton = binding.deleteThemeButton;
         binding.deleteThemeButton.setOnClickListener(v -> showDeleteThemeDialog());
 
         firebaseAuth = FirebaseAuth.getInstance();

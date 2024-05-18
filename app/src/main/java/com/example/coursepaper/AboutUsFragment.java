@@ -19,16 +19,13 @@ public class AboutUsFragment extends Fragment {
         Button exitButton = view.findViewById(R.id.exit_button);
 
         // Set an OnClickListener on the exit_button
-        exitButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Navigate to MainFragment
-                MainFragment mainFragment = new MainFragment();
-                getActivity().getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.fragment_container, mainFragment)
-                        .addToBackStack(null)
-                        .commit();
-            }
+        exitButton.setOnClickListener(v -> {
+            // Navigate to MainFragment
+            MainFragment mainFragment = new MainFragment();
+            getActivity().getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragment_container, mainFragment)
+                    .addToBackStack(null)
+                    .commit();
         });
 
         return view;

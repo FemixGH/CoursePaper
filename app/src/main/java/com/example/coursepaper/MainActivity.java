@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.os.ParcelUuid;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -14,6 +15,7 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 
+import com.bumptech.glide.Glide;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -48,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
 
         TextView usernameTextView = headerView.findViewById(R.id.username);
         TextView emailTextView = headerView.findViewById(R.id.email);
+        ImageView backgroundImageImageView = headerView.findViewById(R.id.backgroundImage);
 
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null) {
@@ -57,9 +60,14 @@ public class MainActivity extends AppCompatActivity {
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     String username = snapshot.child("username").getValue(String.class);
                     String email = snapshot.child("email").getValue(String.class);
+                    String imageUrl = snapshot.child("imageUrl").getValue(String.class);
+
 
                     usernameTextView.setText(username);
                     emailTextView.setText(email);
+                    Glide.with(MainActivity.this)
+                            .load(imageUrl)
+                            .into(backgroundImageImageView);
 
                     // вызов метода updateHeader() для обновления заголовка навигационного меню
 
@@ -86,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
                 } else if (id == R.id.contact) {
                     Toast.makeText(MainActivity.this, "Скоро здесь будут контакты", Toast.LENGTH_SHORT).show();
                 } else if (id == R.id.settings) {
-                    Toast.makeText(MainActivity.this, "Когда нибудь реализуются настройки", Toast.LENGTH_SHORT).show();
+                    replaceFragment(new SettingsFragment());
                 } else if (id == R.id.exit){
                     FirebaseAuth.getInstance().signOut();
                     replaceFragment(new EnterFragment());
