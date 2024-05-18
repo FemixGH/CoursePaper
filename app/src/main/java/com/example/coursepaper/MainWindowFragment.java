@@ -29,28 +29,16 @@ import java.util.Objects;
 
 public class MainWindowFragment extends Fragment {
 
-    private TextView firstAuthorExplanation;
-    private TextView secondAuthorExplanation;
-    private TextView firstAuthorName;
-    private TextView secondAuthorName;
+    private MainWindowFragmentBinding binding;
     private String themeName;
-
-    private DrawerLayout.SimpleDrawerListener drawerListener;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.main_window_fragment, container, false);
-
-        firstAuthorExplanation = view.findViewById(R.id.first_author_explanation);
-        secondAuthorExplanation = view.findViewById(R.id.second_author_explanation);
-        firstAuthorName = view.findViewById(R.id.first_author_name);
-        secondAuthorName = view.findViewById(R.id.second_author_name);
+        binding = MainWindowFragmentBinding.inflate(inflater, container, false);
+        View view = binding.getRoot();
 
         DrawerLayout drawer = ((MainActivity) getActivity()).getDrawerLayout();
-
-
-
 
         Bundle bundle = getArguments();
         if (bundle != null) {
@@ -75,8 +63,8 @@ public class MainWindowFragment extends Fragment {
                     DataSnapshot firstChild = iterator.next();
                     String firstAuthor = (String) firstChild.getValue() + ": ";
                     String firstName = (String) firstChild.getKey();
-                    firstAuthorName.setText(firstName);
-                    firstAuthorExplanation.setText(firstAuthor);
+                    binding.firstAuthorName.setText(firstName);
+                    binding.firstAuthorExplanation.setText(firstAuthor);
                     Log.d("FirstAuthor", firstAuthor);
                 }
                 if (iterator.hasNext()) {
@@ -84,8 +72,8 @@ public class MainWindowFragment extends Fragment {
                     DataSnapshot secondChild = iterator.next();
                     String secondAuthor = (String) secondChild.getValue() + ": ";
                     String secondName = (String) secondChild.getKey();
-                    secondAuthorName.setText(secondName);
-                    secondAuthorExplanation.setText(secondAuthor);
+                    binding.secondAuthorName.setText(secondName);
+                    binding.secondAuthorExplanation.setText(secondAuthor);
                     Log.d("SecondAuthor", secondAuthor);
                 }
             }
@@ -96,7 +84,6 @@ public class MainWindowFragment extends Fragment {
                 Log.e("FirebaseError", "Error fetching data", error.toException());
             }
         });
-
 
         return view;
     }
@@ -117,8 +104,9 @@ public class MainWindowFragment extends Fragment {
 
     }
 
-
-
-
-
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
+    }
 }

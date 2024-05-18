@@ -90,6 +90,8 @@ public class MainActivity extends AppCompatActivity {
                 } else if (id == R.id.exit){
                     FirebaseAuth.getInstance().signOut();
                     replaceFragment(new EnterFragment());
+                }else if (id == R.id.about_us){
+                    replaceFragment(new AboutUsFragment());
                 }
 
 

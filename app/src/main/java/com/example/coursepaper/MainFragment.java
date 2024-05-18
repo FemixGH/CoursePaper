@@ -18,6 +18,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.coursepaper.databinding.MainFragmentBinding;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -31,13 +32,11 @@ import java.util.List;
 
 public class MainFragment extends Fragment {
 
-    private RecyclerView recyclerView;
+    private MainFragmentBinding binding;
     private ThemeAdapter themeAdapter;
     private List<Theme> themeList;
     private DatabaseReference databaseReference;
     private FirebaseAuth firebaseAuth;
-
-    private Button addThemeButton;
 
     private boolean isCurrentUserAdmin = false;
     private List<AlertDialog> openDialogs = new ArrayList<>();
@@ -45,22 +44,21 @@ public class MainFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.main_fragment, container, false);
+        binding = MainFragmentBinding.inflate(inflater, container, false);
+        View view = binding.getRoot();
 
-        recyclerView = view.findViewById(R.id.recyclerview);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        binding.recyclerview.setLayoutManager(new LinearLayoutManager(getContext()));
 
         themeList = new ArrayList<>();
         themeAdapter = new ThemeAdapter((MainActivity) getActivity(), getContext(), themeList);
-        recyclerView.setAdapter(themeAdapter);
+        binding.recyclerview.setAdapter(themeAdapter);
 
+        Button addThemeButton = binding.addThemeButton;
+        binding.addThemeButton.setOnClickListener(v -> showAddThemeDialog());
 
-        addThemeButton = view.findViewById(R.id.add_theme_button);
-        addThemeButton.setOnClickListener(v -> showAddThemeDialog());
-        Button deleteThemeButton = view.findViewById(R.id.delete_theme_button);
-
-        deleteThemeButton.setOnClickListener(v -> showDeleteThemeDialog());
-
+        Button deleteThemeButton = binding.deleteThemeButton;
+        binding.deleteThemeButton.setOnClickListener(v -> showDeleteThemeDialog());
 
         firebaseAuth = FirebaseAuth.getInstance();
         FirebaseUser currentFirebaseUser = firebaseAuth.getCurrentUser();
@@ -72,7 +70,6 @@ public class MainFragment extends Fragment {
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     User user = snapshot.getValue(User.class);
                     if (user != null && user.isAdmin) {
-                        // Отображаем кнопку добавления темы, если текущий пользователь является администратором
                         addThemeButton.setVisibility(View.VISIBLE);
                         addThemeButton.setEnabled(true);
                         deleteThemeButton.setVisibility(View.VISIBLE);
@@ -85,16 +82,12 @@ public class MainFragment extends Fragment {
                     Toast.makeText(getContext(), "Failed to fetch user data from Firebase", Toast.LENGTH_SHORT).show();
                 }
             });
-        }
-        else {
-            // Скрываем кнопку добавления темы, если пользователь не авторизован
+        } else {
             addThemeButton.setVisibility(View.GONE);
             addThemeButton.setEnabled(false);
             deleteThemeButton.setVisibility(View.GONE);
             deleteThemeButton.setEnabled(false);
         }
-
-
 
         databaseReference = FirebaseDatabase.getInstance().getReference("Discussions");
         databaseReference.addValueEventListener(new ValueEventListener() {
@@ -110,7 +103,6 @@ public class MainFragment extends Fragment {
                         Iterable<DataSnapshot> childrenSnapshots = subThemeSnapshot.getChildren();
                         String firstAuthorName = childrenSnapshots.iterator().next().getKey();
                         String secondAuthorName = childrenSnapshots.iterator().next().getKey();
-
 
                         int firstAuthorImg = R.drawable.avatar1;
                         int secondAuthorImg = R.drawable.avatar2;
@@ -142,6 +134,8 @@ public class MainFragment extends Fragment {
         super.onPause();
         ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(false);
     }
+
+
 
 
     private void addThemeToFirebase(final String themeName) {

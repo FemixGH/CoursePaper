@@ -5,21 +5,25 @@
         <item
             android:id="@+id/home"
             android:icon="@drawable/icons8_home"
-            android:title="Home"
+            android:title="Главная страница"
             />
         <item
             android:id="@+id/contact"
             android:icon="@drawable/baseline_local_phone_24"
-            android:title="Contact us"
+            android:title="Связаться с разработчиком"
             />
         <item
             android:id="@+id/settings"
             android:icon="@drawable/ic_settings_24dp"
-            android:title="Settings"
+            android:title="Настройки"
             />
         <item
             android:id="@+id/exit"
-            android:title="Log out"
+            android:title="Выйти из профиля"
             android:icon="@drawable/baseline_exit_to_app_24"/>
+        <item
+            android:id="@+id/about_us"
+            android:title="О приложении"
+            android:icon="@drawable/baseline_face_24"/>
     </group>
 </menu>
