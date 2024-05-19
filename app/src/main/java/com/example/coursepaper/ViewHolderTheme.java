@@ -21,12 +21,12 @@ public class ViewHolderTheme extends RecyclerView.ViewHolder implements View.OnC
     MainActivity mainActivity;
     private List<Theme> list;
 
-    public ViewHolderTheme(MainActivity mainActivity, View itemView, List<Theme> list) { // добавляем список list в конструктор
+    public ViewHolderTheme(MainActivity mainActivity, View itemView, List<Theme> list) {
         super(itemView);
         this.mainActivity = mainActivity;
         themeView = itemView.findViewById(R.id.theme_name);
         itemView.setOnClickListener(this);
-        this.list = list; // инициализируем список list
+        this.list = list;
     }
 
     @Override
@@ -36,9 +36,8 @@ public class ViewHolderTheme extends RecyclerView.ViewHolder implements View.OnC
 
         // Создаем новый Bundle и добавляем themeName и subThemes
         Bundle bundle = new Bundle();
-        bundle.putString("themeName", selectedTheme.getTheme()); //добавляю в bundle
-        Log.d("ME", selectedTheme.getTheme());
-        bundle.putParcelableArrayList("subThemes", (ArrayList<? extends Parcelable>) selectedTheme.getSubThemes());
+        bundle.putString("themeName", selectedTheme.getTheme());
+        bundle.putParcelableArrayList("subThemes", new ArrayList<SubTheme>(selectedTheme.getSubThemes()));
 
         // Сохраняем themeName в SharedPreferences
         SharedPreferences sharedPreferences = mainActivity.getSharedPreferences("my_prefs", Context.MODE_PRIVATE);
@@ -46,16 +45,11 @@ public class ViewHolderTheme extends RecyclerView.ViewHolder implements View.OnC
         editor.putString("mainTheme", selectedTheme.getTheme());
         editor.apply();
 
-
         // Создаем новый экземпляр SubThemeFragment и добавляем Bundle в качестве аргументов
         SubThemeFragment subThemeFragment = new SubThemeFragment();
         subThemeFragment.setArguments(bundle);
 
-
         // Заменяем текущий фрагмент на SubThemeFragment
         mainActivity.replaceFragment(subThemeFragment);
     }
-
 }
-
-

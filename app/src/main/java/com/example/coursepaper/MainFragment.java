@@ -107,7 +107,7 @@ public class MainFragment extends Fragment {
 
                         int firstAuthorImg = R.drawable.avatar1;
                         int secondAuthorImg = R.drawable.avatar2;
-                        subThemeList.add(new SubTheme(subThemeName, firstAuthorName, secondAuthorName, firstAuthorImg, secondAuthorImg));
+                        subThemeList.add(new SubTheme(subThemeName));
                     }
                     themeList.add(new Theme(themeName, subThemeList));
                 }

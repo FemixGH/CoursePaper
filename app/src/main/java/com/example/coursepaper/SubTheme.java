@@ -3,68 +3,18 @@ package com.example.coursepaper;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class SubTheme implements Parcelable {
-    public String getFirstAuthorName() {
-        return firstAuthorName;
-    }
 
-    public void setFirstAuthorName(String firstAuthorName) {
-        this.firstAuthorName = firstAuthorName;
-    }
+    private List<Comment> comments;
+    private String subTheme;
 
-    public String getSecondAuthorName() {
-        return secondAuthorName;
-    }
-
-    public void setSecondAuthorName(String secondAuthorName) {
-        this.secondAuthorName = secondAuthorName;
-    }
-
-    public int getFirstAuthorImg() {
-        return firstAuthorImg;
-    }
-
-    public void setFirstAuthorImg(int firstAuthorImg) {
-        this.firstAuthorImg = firstAuthorImg;
-    }
-
-    public int getSecondAuthorImg() {
-        return secondAuthorImg;
-    }
-
-    public void setSecondAuthorImg(int secondAuthorImg) {
-        this.secondAuthorImg = secondAuthorImg;
-    }
-
-    String subTheme;
-    String firstAuthorName;
-    String secondAuthorName;
-    int firstAuthorImg;
-    int secondAuthorImg;
-
-    public SubTheme(String subTheme, String firstAuthorName, String secondAuthorName, int firstAuthorImg, int secondAuthorImg) {
+    public SubTheme(String subTheme) {
         this.subTheme = subTheme;
-        this.firstAuthorName = firstAuthorName;
-        this.secondAuthorName = secondAuthorName;
-        this.firstAuthorImg = firstAuthorImg;
-        this.secondAuthorImg = secondAuthorImg;
+        this.comments = new ArrayList<>();
     }
-
-    protected SubTheme(Parcel in) {
-        subTheme = in.readString();
-    }
-
-    public static final Parcelable.Creator<SubTheme> CREATOR = new Creator<SubTheme>() {
-        @Override
-        public SubTheme createFromParcel(Parcel in) {
-            return new SubTheme(in);
-        }
-
-        @Override
-        public SubTheme[] newArray(int size) {
-            return new SubTheme[size];
-        }
-    };
 
     public String getSubTheme() {
         return subTheme;
@@ -72,6 +22,14 @@ public class SubTheme implements Parcelable {
 
     public void setSubTheme(String subTheme) {
         this.subTheme = subTheme;
+    }
+
+    public List<Comment> getComments() {
+        return comments;
+    }
+
+    public void setComments(List<Comment> comments) {
+        this.comments = comments;
     }
 
     @Override
@@ -82,5 +40,24 @@ public class SubTheme implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(subTheme);
+        dest.writeList(comments);
     }
+
+    protected SubTheme(Parcel in) {
+        subTheme = in.readString();
+        comments = new ArrayList<>();
+        in.readList(comments, Comment.class.getClassLoader());
+    }
+
+    public static final Parcelable.Creator<SubTheme> CREATOR = new Parcelable.Creator<SubTheme>() {
+        @Override
+        public SubTheme createFromParcel(Parcel in) {
+            return new SubTheme(in);
+        }
+
+        @Override
+        public SubTheme[] newArray(int size) {
+            return new SubTheme[size];
+        }
+    };
 }

@@ -19,8 +19,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/first_author_img"
-        android:layout_alignStart="@id/first_author_img"
-        android:text="Вася Пупкин" />
+        android:layout_alignStart="@id/first_author_img" />
 
     <TextView
         android:id="@+id/subtheme_name"
@@ -29,7 +28,6 @@
         android:layout_toEndOf="@id/first_author_img"
         android:layout_toStartOf="@id/second_author_img"
         android:layout_alignTop="@id/first_author_img"
-        android:text="Нужно ли ремонтировать бордюры каждые полгода"
         android:gravity="center"
         android:layout_marginTop="10dp"/>
 
@@ -45,7 +43,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/second_author_img"
-        android:layout_alignRight="@id/second_author_img"
-        android:text="Иван иванов" />
+        android:layout_alignRight="@id/second_author_img" />
 
 </RelativeLayout>

@@ -31,10 +31,7 @@ public class SubThemeAdapter extends RecyclerView.Adapter<ViewHolderSubTheme> {
     @Override
     public void onBindViewHolder(@NonNull ViewHolderSubTheme holder, int position) {
         holder.subThemeView.setText(subThemeList.get(position).getSubTheme());
-        holder.firstAuthorName.setText(subThemeList.get(position).getFirstAuthorName());
-        holder.secondAuthorName.setText(subThemeList.get(position).getSecondAuthorName());
-        holder.firstAuthorImg.setImageResource(subThemeList.get(position).getFirstAuthorImg());
-        holder.secondAuthorImg.setImageResource(subThemeList.get(position).getSecondAuthorImg());
+;
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -47,10 +44,7 @@ public class SubThemeAdapter extends RecyclerView.Adapter<ViewHolderSubTheme> {
                 Bundle bundle = new Bundle();
                 bundle.putString("themeName", selectedSubTheme.getSubTheme());
                 bundle.putString("subTheme", selectedSubTheme.getSubTheme());
-                bundle.putString("firstAuthorName", selectedSubTheme.getFirstAuthorName());
-                bundle.putString("secondAuthorName", selectedSubTheme.getSecondAuthorName());
-                bundle.putInt("firstAuthorImg", selectedSubTheme.getFirstAuthorImg());
-                bundle.putInt("secondAuthorImg", selectedSubTheme.getSecondAuthorImg());
+
 
                 MainWindowFragment mainWindowFragment = new MainWindowFragment();
                 mainWindowFragment.setArguments(bundle);
