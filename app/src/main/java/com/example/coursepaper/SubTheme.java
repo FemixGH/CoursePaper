@@ -10,6 +10,7 @@ public class SubTheme implements Parcelable {
 
     private List<Comment> comments;
     private String subTheme;
+   
 
     public SubTheme(String subTheme) {
         this.subTheme = subTheme;

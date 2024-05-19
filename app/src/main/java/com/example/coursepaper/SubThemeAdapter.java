@@ -10,6 +10,15 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
 import java.util.List;
 
 public class SubThemeAdapter extends RecyclerView.Adapter<ViewHolderSubTheme> {
@@ -31,7 +40,31 @@ public class SubThemeAdapter extends RecyclerView.Adapter<ViewHolderSubTheme> {
     @Override
     public void onBindViewHolder(@NonNull ViewHolderSubTheme holder, int position) {
         holder.subThemeView.setText(subThemeList.get(position).getSubTheme());
-;
+
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user != null) {
+            DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("users/" + user.getUid());
+            databaseReference.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    String username = snapshot.child("username").getValue(String.class);
+                    String imageUrl = snapshot.child("imageUrl").getValue(String.class);
+
+                    holder.firstAuthorName.setText(username);
+                    Glide.with(context)
+                            .load(imageUrl)
+                            .into(holder.firstAuthorImg);
+
+
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    // обработка ошибки
+                }
+            });
+        }
+
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -44,7 +77,6 @@ public class SubThemeAdapter extends RecyclerView.Adapter<ViewHolderSubTheme> {
                 Bundle bundle = new Bundle();
                 bundle.putString("themeName", selectedSubTheme.getSubTheme());
                 bundle.putString("subTheme", selectedSubTheme.getSubTheme());
-
 
                 MainWindowFragment mainWindowFragment = new MainWindowFragment();
                 mainWindowFragment.setArguments(bundle);
