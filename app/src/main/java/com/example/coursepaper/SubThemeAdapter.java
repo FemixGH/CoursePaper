@@ -2,6 +2,7 @@ package com.example.coursepaper;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,16 +20,20 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class SubThemeAdapter extends RecyclerView.Adapter<ViewHolderSubTheme> {
 
     private AppCompatActivity context;
     private List<SubTheme> subThemeList;
+    private String mainThemeName;
+    List<String> authorIds = new ArrayList<>();
 
-    public SubThemeAdapter(AppCompatActivity context, List<SubTheme> subThemeList) {
+    public SubThemeAdapter(AppCompatActivity context, List<SubTheme> subThemeList, String mainThemeName) {
         this.context = context;
         this.subThemeList = subThemeList;
+        this.mainThemeName = mainThemeName;
     }
 
     @NonNull
@@ -41,26 +46,58 @@ public class SubThemeAdapter extends RecyclerView.Adapter<ViewHolderSubTheme> {
     public void onBindViewHolder(@NonNull ViewHolderSubTheme holder, int position) {
         holder.subThemeView.setText(subThemeList.get(position).getSubTheme());
 
+
+        SubTheme selectedSubTheme = subThemeList.get(position);
+        Log.d("QWERTY", selectedSubTheme.getSubTheme());
+        Log.d("QWERTY", mainThemeName);
+
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null) {
-            DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("users/" + user.getUid());
-            databaseReference.addValueEventListener(new ValueEventListener() {
+            DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
+            DatabaseReference commentsRef = databaseReference.child("Discussions")
+                    .child(mainThemeName).child(selectedSubTheme.getSubTheme()).child("comments");
+
+
+
+            commentsRef.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
-                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    String username = snapshot.child("username").getValue(String.class);
-                    String imageUrl = snapshot.child("imageUrl").getValue(String.class);
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    // Loop through the comments and get the authorId for each one
+                    for (DataSnapshot commentSnapshot : dataSnapshot.getChildren()) {
+                        String authorId = commentSnapshot.child("authorId").getValue(String.class);
+                        System.out.println("Author ID: " + authorId);
+                        authorIds.add(authorId);
+                    }
 
-                    holder.firstAuthorName.setText(username);
-                    Glide.with(context)
-                            .load(imageUrl)
-                            .into(holder.firstAuthorImg);
+                    // Get the username and avatar URL for each author ID
+                    for (String authorId : authorIds) {
+                        DatabaseReference userRef = databaseReference.child("users").child(authorId);
+                        userRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                String username = dataSnapshot.child("username").getValue(String.class);
+                                String avatarUrl = dataSnapshot.child("imageUrl").getValue(String.class);
 
+                                System.out.println("Username: " + username);
+                                System.out.println("Avatar URL: " + avatarUrl);
 
+                                holder.firstAuthorName.setText(username);
+                                Glide.with(context)
+                                        .load(avatarUrl)
+                                        .into(holder.firstAuthorImg);
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+                                System.out.println("The read failed: " + databaseError.getCode());
+                            }
+                        });
+                    }
                 }
 
                 @Override
-                public void onCancelled(@NonNull DatabaseError error) {
-                    // обработка ошибки
+                public void onCancelled(DatabaseError databaseError) {
+                    System.out.println("The read failed: " + databaseError.getCode());
                 }
             });
         }
@@ -73,9 +110,8 @@ public class SubThemeAdapter extends RecyclerView.Adapter<ViewHolderSubTheme> {
                 SubTheme selectedSubTheme = subThemeList.get(position);
 
 
-
                 Bundle bundle = new Bundle();
-                bundle.putString("themeName", selectedSubTheme.getSubTheme());
+                bundle.putString("themeName", mainThemeName);
                 bundle.putString("subTheme", selectedSubTheme.getSubTheme());
 
                 MainWindowFragment mainWindowFragment = new MainWindowFragment();
@@ -93,6 +129,7 @@ public class SubThemeAdapter extends RecyclerView.Adapter<ViewHolderSubTheme> {
     public int getItemCount() {
         return subThemeList.size();
     }
+
     public void updateSubThemeList(List<SubTheme> newSubThemeList) {
         subThemeList.clear();
         subThemeList.addAll(newSubThemeList);

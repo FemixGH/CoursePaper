@@ -77,7 +77,9 @@ public class SubThemeFragment extends Fragment {
         }
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        recyclerView.setAdapter(new SubThemeAdapter((AppCompatActivity) getActivity(), subThemes));
+        String mainThemeName = getMainThemeNameFromSharedPreferences();
+        recyclerView.setAdapter(new SubThemeAdapter((AppCompatActivity) getActivity(), subThemes, mainThemeName));
+
 
         addSubThemeButton.setOnClickListener(new View.OnClickListener() {
             @Override
