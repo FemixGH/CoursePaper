@@ -93,6 +93,12 @@ public class SubThemeAdapter extends RecyclerView.Adapter<ViewHolderSubTheme> {
     public int getItemCount() {
         return subThemeList.size();
     }
+    public void updateSubThemeList(List<SubTheme> newSubThemeList) {
+        subThemeList.clear();
+        subThemeList.addAll(newSubThemeList);
+        notifyDataSetChanged();
+    }
+
 }
 
 

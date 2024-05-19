@@ -57,6 +57,8 @@ public class SubThemeFragment extends Fragment {
                     if (user != null && user.isAdmin) {
                         isCurrentUserAdmin = true;
                         addSubThemeButton.setVisibility(View.VISIBLE);
+
+
                     }
                 }
 
@@ -138,16 +140,30 @@ public class SubThemeFragment extends Fragment {
 
             String mainThemeName = getMainThemeNameFromSharedPreferences();
             databaseReference = FirebaseDatabase.getInstance().getReference("Discussions/" + mainThemeName + "/" + subThemeName);
-            databaseReference.setValue(newSubTheme);
-            Toast.makeText(getContext(), "Sub-theme added successfully", Toast.LENGTH_SHORT).show();
+            databaseReference.setValue(newSubTheme, new DatabaseReference.CompletionListener() {
+                @Override
+                public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+                    if (databaseError == null) {
+                        Toast.makeText(getContext(), "Sub-theme added successfully", Toast.LENGTH_SHORT).show();
+                        // Add the new sub-theme to the list
+                        subThemes.add(newSubTheme);
+                        // Notify the adapter that the data has changed
+                        recyclerView.getAdapter().notifyDataSetChanged();
+                    } else {
+                        Toast.makeText(getContext(), "Failed to add sub-theme: " + databaseError.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
         }
     }
+
 
 
     private String getMainThemeNameFromSharedPreferences() {
         SharedPreferences sharedPreferences = getActivity().getSharedPreferences("my_prefs", Context.MODE_PRIVATE);
         return sharedPreferences.getString("mainTheme", "");
     }
+
 }
 
 
