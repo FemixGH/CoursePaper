@@ -92,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
                 if (id == R.id.home) {
                     replaceFragment(new MainFragment());
                 } else if (id == R.id.contact) {
-                    Toast.makeText(MainActivity.this, "Скоро здесь будут контакты", Toast.LENGTH_SHORT).show();
+                    replaceFragment(new ContactFragment());
                 } else if (id == R.id.settings) {
                     replaceFragment(new SettingsFragment());
                 } else if (id == R.id.exit){

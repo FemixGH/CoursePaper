@@ -10,5 +10,6 @@
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="story">Это приложение было разработано в рамках курсовой работы по дисциплине "Разработка мобильных приложений". Это приложение представляет собой приложение для текстовых дебатов</string>
+    <string name="about_sending">Для того чтобы получить возможность добавлять новые темы для обсуждений необходимо написать на почту, в ней надо указать о чём вы хотите написать, имя пользователя и почту привязанную к аккаунту let\'s discuss</string>
 
 </resources>

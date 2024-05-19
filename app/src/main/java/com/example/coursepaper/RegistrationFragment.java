@@ -66,7 +66,7 @@ public class RegistrationFragment extends Fragment {
 
 
 
-        return view;
+        return binding.getRoot();
     }
 
 
