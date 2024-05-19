@@ -18,12 +18,13 @@
             android:title="Настройки"
             />
         <item
+            android:id="@+id/about_us"
+            android:title="О приложении"
+            android:icon="@drawable/about"/>
+        <item
             android:id="@+id/exit"
             android:title="Выйти из профиля"
             android:icon="@drawable/baseline_exit_to_app_24"/>
-        <item
-            android:id="@+id/about_us"
-            android:title="О приложении"
-            android:icon="@drawable/baseline_face_24"/>
+
     </group>
 </menu>
