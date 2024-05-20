@@ -9,6 +9,9 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -34,7 +37,14 @@ public class MainWindowFragment extends Fragment {
     private String themeName;
     private TextView collapsedText;
     private TextView expandedText;
+    private LinearLayout textContainer;
     private GestureDetector gestureDetector;
+    private TextView rightCollapsedText;
+    private TextView rightExpandedText;
+    private LinearLayout rightTextContainer;
+    private boolean isLeftContainerExpanded;
+    private boolean isRightContainerExpanded;
+    private boolean isAnimating;
 
 
     @Nullable
@@ -50,33 +60,39 @@ public class MainWindowFragment extends Fragment {
             themeName = bundle.getString("themeName");
         }
         Log.d("Main", Objects.requireNonNull(themeName));
+        isLeftContainerExpanded = false;
+        isRightContainerExpanded = false;
+        isAnimating = false;
+
 
 
         // Initialize TextViews
         collapsedText = view.findViewById(R.id.collapsed_text);
         expandedText = view.findViewById(R.id.expanded_text);
 
+        // Initialize LinearLayout
+        textContainer = view.findViewById(R.id.text_container);
+
         // Initialize GestureDetector
         gestureDetector = new GestureDetector(getActivity(), new GestureListener());
 
-        // Set OnTouchListener for collapsed TextView
-        collapsedText.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                gestureDetector.onTouchEvent(event);
-                return true;
-            }
+        // Set OnTouchListener for LinearLayout
+        textContainer.setOnTouchListener((v, event) -> {
+            gestureDetector.onTouchEvent(event);
+            return true;
         });
+        // Initialize TextViews for the right LinearLayout
+        rightCollapsedText = view.findViewById(R.id.right_collapsed_text);
+        rightExpandedText = view.findViewById(R.id.right_expanded_text);
 
-        // Set OnTouchListener for expanded TextView
-        expandedText.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                gestureDetector.onTouchEvent(event);
-                return true;
-            }
+        // Initialize LinearLayout for the right container
+        rightTextContainer = view.findViewById(R.id.right_text_container);
+
+        // Set OnTouchListener for the right LinearLayout
+        rightTextContainer.setOnTouchListener((v, event) -> {
+            gestureDetector.onTouchEvent(event);
+            return true;
         });
-
 
 
 
@@ -150,17 +166,111 @@ public class MainWindowFragment extends Fragment {
 
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-            // Check swipe direction
-            if (e2.getX() - e1.getX() > 100) {
-                // Swipe right to left
+            // Check swipe direction, container states, and animation state
+            if (!isAnimating && e2.getX() - e1.getX() > 100 && !isRightContainerExpanded) {
+                // Swipe right to left on the left container
+
+                // Reset the right container if it's visible
+                if (isLeftContainerExpanded && rightExpandedText.getVisibility() == View.VISIBLE) {
+                    rightExpandedText.setVisibility(View.GONE);
+                    rightCollapsedText.setVisibility(View.VISIBLE);
+                }
+
+                // Set visibility of TextViews for the left container
                 expandedText.setVisibility(View.VISIBLE);
                 collapsedText.setVisibility(View.GONE);
-            } else if (e1.getX() - e2.getX() > 100) {
-                // Swipe left to right
-                expandedText.setVisibility(View.GONE);
-                collapsedText.setVisibility(View.VISIBLE);
+
+                // Create animation for the left container
+                AlphaAnimation alphaAnimation = new AlphaAnimation(0.0f, 1.0f);
+                alphaAnimation.setDuration(500); // You can adjust the duration of the animation as needed
+
+                // Set animation listener for the left container
+                alphaAnimation.setAnimationListener(new Animation.AnimationListener() {
+                    @Override
+                    public void onAnimationStart(Animation animation) {
+                        // Animation start
+                        isAnimating = true;
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animation animation) {
+                        // Animation end
+                        isLeftContainerExpanded = true;
+                        isRightContainerExpanded = false;
+                        isAnimating = false;
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animation animation) {
+                        // Animation repeat
+                    }
+                });
+
+                // Start animation for the left container
+                expandedText.startAnimation(alphaAnimation);
+
+            } else if (!isAnimating && e1.getX() - e2.getX() > 100 && !isLeftContainerExpanded) {
+                // Swipe left to right on the right container
+
+                // Reset the left container if it's visible
+                if (isRightContainerExpanded && expandedText.getVisibility() == View.VISIBLE) {
+                    expandedText.setVisibility(View.GONE);
+                    collapsedText.setVisibility(View.VISIBLE);
+                }
+
+                // Set visibility of TextViews for the right container
+                rightExpandedText.setVisibility(View.VISIBLE);
+                rightCollapsedText.setVisibility(View.GONE);
+
+                // Create animation for the right container
+                AlphaAnimation alphaAnimation = new AlphaAnimation(0.0f, 1.0f);
+                alphaAnimation.setDuration(500); // You can adjust the duration of the animation as needed
+
+                // Set animation listener for the right container
+                alphaAnimation.setAnimationListener(new Animation.AnimationListener() {
+                    @Override
+                    public void onAnimationStart(Animation animation) {
+                        // Animation start
+                        isAnimating = true;
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animation animation) {
+                        // Animation end
+                        isLeftContainerExpanded = false;
+                        isRightContainerExpanded = true;
+                        isAnimating = false;
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animation animation) {
+                        // Animation repeat
+                    }
+                });
+
+                // Start animation for the right container
+                rightExpandedText.startAnimation(alphaAnimation);
+
+            } else if ((e2.getX() - e1.getX() > 100 && isRightContainerExpanded) || (e1.getX() - e2.getX() > 100 && isLeftContainerExpanded)) {
+                // Swipe in the wrong direction or swipe on an already expanded container
+
+                // Set visibility of TextViews for the expanded container
+                if (isLeftContainerExpanded) {
+                    expandedText.setVisibility(View.GONE);
+                    collapsedText.setVisibility(View.VISIBLE);
+                } else if (isRightContainerExpanded) {
+                    rightExpandedText.setVisibility(View.GONE);
+                    rightCollapsedText.setVisibility(View.VISIBLE);
+                }
+
+                // Reset flags for tracking container states
+                isLeftContainerExpanded = false;
+                isRightContainerExpanded = false;
+
             }
+
             return true;
         }
     }
+
 }
