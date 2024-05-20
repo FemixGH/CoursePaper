@@ -60,6 +60,7 @@ public class MainWindowFragment extends Fragment {
     private TextView firstAuthorName;
     private Button addTextButton;
     private DatabaseReference lastAddedCommentRef;
+    Button editTextButton;
 
 
 
@@ -162,14 +163,40 @@ public class MainWindowFragment extends Fragment {
             }
         });
 
+        // Initialize add text button
         addTextButton = view.findViewById(R.id.add_text_button);
+
+// Initialize edit text button
+        editTextButton = view.findViewById(R.id.edit_text_button);
+
+// Check if the current user is an admin
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser != null) {
+            DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("users").child(currentUser.getUid());
+            userRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    boolean isAdmin = snapshot.child("isAdmin").getValue(boolean.class);
+                    if (isAdmin) {
+                        // If the user is an admin, make the buttons visible
+                        addTextButton.setVisibility(View.VISIBLE);
+                        editTextButton.setVisibility(View.VISIBLE);
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    Log.e("Firebase", "Failed to read value.", error.toException());
+                }
+            });
+        }
         addTextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 addTextToSubtheme();
             }
         });
-        Button editTextButton = view.findViewById(R.id.edit_text_button);
+
         editTextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -228,8 +255,14 @@ public class MainWindowFragment extends Fragment {
                 boolean isAdmin = snapshot.child("isAdmin").getValue(boolean.class);
                 if (!isAdmin) {
                     // Текущий пользователь не является администратором
+                    addTextButton.setVisibility(View.GONE);
+                    editTextButton.setVisibility(View.GONE);
+
+
                     return;
                 }
+                addTextButton.setVisibility(View.VISIBLE);
+                editTextButton.setVisibility(View.VISIBLE);
 
                 // Проверить, есть ли уже текст в субтеме
                 DatabaseReference subthemeRef = FirebaseDatabase.getInstance().getReference("Discussions").child(getMainThemeNameFromSharedPreferences()).child(getSubThemeNameFromSharedPreferences()).child("comments");
