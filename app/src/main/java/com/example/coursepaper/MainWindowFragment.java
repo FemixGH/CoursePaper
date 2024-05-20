@@ -4,8 +4,9 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Gravity;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -13,7 +14,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 
@@ -29,8 +29,13 @@ import java.util.Objects;
 
 public class MainWindowFragment extends Fragment {
 
+
     private MainWindowFragmentBinding binding;
     private String themeName;
+    private TextView collapsedText;
+    private TextView expandedText;
+    private GestureDetector gestureDetector;
+
 
     @Nullable
     @Override
@@ -45,6 +50,36 @@ public class MainWindowFragment extends Fragment {
             themeName = bundle.getString("themeName");
         }
         Log.d("Main", Objects.requireNonNull(themeName));
+
+
+        // Initialize TextViews
+        collapsedText = view.findViewById(R.id.collapsed_text);
+        expandedText = view.findViewById(R.id.expanded_text);
+
+        // Initialize GestureDetector
+        gestureDetector = new GestureDetector(getActivity(), new GestureListener());
+
+        // Set OnTouchListener for collapsed TextView
+        collapsedText.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                gestureDetector.onTouchEvent(event);
+                return true;
+            }
+        });
+
+        // Set OnTouchListener for expanded TextView
+        expandedText.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                gestureDetector.onTouchEvent(event);
+                return true;
+            }
+        });
+
+
+
+
 
         SharedPreferences sharedPreferences = getActivity().getSharedPreferences("my_prefs", Context.MODE_PRIVATE);
         String mainTheme = sharedPreferences.getString("mainTheme", "");
@@ -63,8 +98,8 @@ public class MainWindowFragment extends Fragment {
                     DataSnapshot firstChild = iterator.next();
                     String firstAuthor = (String) firstChild.getValue() + ": ";
                     String firstName = (String) firstChild.getKey();
-                    binding.firstAuthorName.setText(firstName);
-                    binding.firstAuthorExplanation.setText(firstAuthor);
+//                    binding.firstAuthorName.setText(firstName);
+//                    binding.firstAuthorExplanation.setText(firstAuthor);
                     Log.d("FirstAuthor", firstAuthor);
                 }
                 if (iterator.hasNext()) {
@@ -72,8 +107,8 @@ public class MainWindowFragment extends Fragment {
                     DataSnapshot secondChild = iterator.next();
                     String secondAuthor = (String) secondChild.getValue() + ": ";
                     String secondName = (String) secondChild.getKey();
-                    binding.secondAuthorName.setText(secondName);
-                    binding.secondAuthorExplanation.setText(secondAuthor);
+//                    binding.secondAuthorName.setText(secondName);
+//                    binding.secondAuthorExplanation.setText(secondAuthor);
                     Log.d("SecondAuthor", secondAuthor);
                 }
             }
@@ -108,5 +143,24 @@ public class MainWindowFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
+    }
+
+
+    private class GestureListener extends GestureDetector.SimpleOnGestureListener {
+
+        @Override
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            // Check swipe direction
+            if (e2.getX() - e1.getX() > 100) {
+                // Swipe right to left
+                expandedText.setVisibility(View.VISIBLE);
+                collapsedText.setVisibility(View.GONE);
+            } else if (e1.getX() - e2.getX() > 100) {
+                // Swipe left to right
+                expandedText.setVisibility(View.GONE);
+                collapsedText.setVisibility(View.VISIBLE);
+            }
+            return true;
+        }
     }
 }
