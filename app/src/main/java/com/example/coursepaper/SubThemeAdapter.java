@@ -1,6 +1,7 @@
 package com.example.coursepaper;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -47,9 +48,11 @@ public class SubThemeAdapter extends RecyclerView.Adapter<ViewHolderSubTheme> {
         holder.subThemeView.setText(subThemeList.get(position).getSubTheme());
 
 
+
+
         SubTheme selectedSubTheme = subThemeList.get(position);
-        Log.d("QWERTY", selectedSubTheme.getSubTheme());
-        Log.d("QWERTY", mainThemeName);
+        Log.d("MAINTHEME",  mainThemeName);
+
 
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null) {
@@ -109,13 +112,16 @@ public class SubThemeAdapter extends RecyclerView.Adapter<ViewHolderSubTheme> {
                 int position = holder.getAdapterPosition();
                 SubTheme selectedSubTheme = subThemeList.get(position);
 
+                SharedPreferences sharedPreferences = context.getSharedPreferences("my_prefs", Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putString("subTheme", subThemeList.get(position).getSubTheme());
+                editor.apply();
 
-                Bundle bundle = new Bundle();
-                bundle.putString("themeName", mainThemeName);
-                bundle.putString("subTheme", selectedSubTheme.getSubTheme());
+
+                Log.d("SUBTHEMEADAPTER",mainThemeName + subThemeList.get(position).getSubTheme());
 
                 MainWindowFragment mainWindowFragment = new MainWindowFragment();
-                mainWindowFragment.setArguments(bundle);
+
 
                 context.getSupportFragmentManager().beginTransaction()
                         .replace(R.id.fragment_container, mainWindowFragment)

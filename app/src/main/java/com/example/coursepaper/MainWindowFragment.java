@@ -21,12 +21,15 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 
 import com.example.coursepaper.databinding.MainWindowFragmentBinding;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Objects;
 
@@ -45,6 +48,8 @@ public class MainWindowFragment extends Fragment {
     private boolean isLeftContainerExpanded;
     private boolean isRightContainerExpanded;
     private boolean isAnimating;
+    private String selectedSubtheme;
+    private TextView firstAuthorName;
 
 
     @Nullable
@@ -55,17 +60,26 @@ public class MainWindowFragment extends Fragment {
 
         DrawerLayout drawer = ((MainActivity) getActivity()).getDrawerLayout();
 
+
         Bundle bundle = getArguments();
         if (bundle != null) {
             themeName = bundle.getString("themeName");
+            ArrayList<SubTheme> subThemes = bundle.getParcelableArrayList("subThemes");
+
         }
-        Log.d("Main", Objects.requireNonNull(themeName));
+
         isLeftContainerExpanded = false;
         isRightContainerExpanded = false;
         isAnimating = false;
 
 
+//        SharedPreferences sharedPreferences = getActivity().getSharedPreferences("my_prefs", Context.MODE_PRIVATE);
+        SharedPreferences sharedPreferences = getActivity().getSharedPreferences("my_prefs", Context.MODE_PRIVATE);
+        String subTheme = sharedPreferences.getString("subTheme", "");
+        String realTheme = sharedPreferences.getString("mainTheme", "");
 
+
+        Log.d("DIRECTORY", realTheme + " " + subTheme);
         // Initialize TextViews
         collapsedText = view.findViewById(R.id.collapsed_text);
         expandedText = view.findViewById(R.id.expanded_text);
@@ -87,6 +101,7 @@ public class MainWindowFragment extends Fragment {
 
         // Initialize LinearLayout for the right container
         rightTextContainer = view.findViewById(R.id.right_text_container);
+        firstAuthorName = view.findViewById(R.id.first_author_name);
 
         // Set OnTouchListener for the right LinearLayout
         rightTextContainer.setOnTouchListener((v, event) -> {
@@ -94,47 +109,49 @@ public class MainWindowFragment extends Fragment {
             return true;
         });
 
-
-
-
-        SharedPreferences sharedPreferences = getActivity().getSharedPreferences("my_prefs", Context.MODE_PRIVATE);
-        String mainTheme = sharedPreferences.getString("mainTheme", "");
-
-        Log.d("DIRECTORY", mainTheme);
-
         // Get discussion from Firebase
-        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Discussions/" + mainTheme + "/" + themeName);
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Discussions").child(realTheme).child(subTheme).child("comments");
+
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                Log.d("TESTING", snapshot.toString());
-                Iterator<DataSnapshot> iterator = snapshot.getChildren().iterator();
-                if (iterator.hasNext()) {
-                    // Assign the first author from the first child node
-                    DataSnapshot firstChild = iterator.next();
-                    String firstAuthor = (String) firstChild.getValue() + ": ";
-                    String firstName = (String) firstChild.getKey();
-//                    binding.firstAuthorName.setText(firstName);
-//                    binding.firstAuthorExplanation.setText(firstAuthor);
-                    Log.d("FirstAuthor", firstAuthor);
-                }
-                if (iterator.hasNext()) {
-                    // Assign the second author from the next child node
-                    DataSnapshot secondChild = iterator.next();
-                    String secondAuthor = (String) secondChild.getValue() + ": ";
-                    String secondName = (String) secondChild.getKey();
-//                    binding.secondAuthorName.setText(secondName);
-//                    binding.secondAuthorExplanation.setText(secondAuthor);
-                    Log.d("SecondAuthor", secondAuthor);
+
+                // Итерируемся по всем комментариям в snapshot
+                for (DataSnapshot commentSnapshot : snapshot.getChildren()) {
+                    // Получаем значения полей authorId и text
+                    String authorId = commentSnapshot.child("authorId").getValue(String.class);
+                    String text = commentSnapshot.child("text").getValue(String.class);
+                    collapsedText.setText(text);
+                    expandedText.setText(text);
+                    DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("users").child(authorId);
+
+                    databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            String authorName = snapshot.child("username").getValue(String.class);
+                            firstAuthorName.setText(authorName);
+                            Log.d("AUTHOR_NAME", authorName);
+                            // вы можете использовать authorName здесь
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+                            Log.e("Firebase", "Failed to read value.", error.toException());
+                        }
+                    });
+                    // Выводим текст комментария в лог
+                    Log.d("COMMENTS", text);
                 }
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                // Handle possible errors
-                Log.e("FirebaseError", "Error fetching data", error.toException());
+                // Обрабатываем ошибку
+                Log.e("Firebase", "Failed to read value.", error.toException());
             }
         });
+
+
 
         return view;
     }
@@ -159,6 +176,10 @@ public class MainWindowFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
+    }
+    private String getMainThemeNameFromSharedPreferences() {
+        SharedPreferences sharedPreferences = getActivity().getSharedPreferences("my_prefs", Context.MODE_PRIVATE);
+        return sharedPreferences.getString("mainTheme", "");
     }
 
 

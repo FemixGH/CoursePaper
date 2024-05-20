@@ -34,16 +34,16 @@ public class ViewHolderTheme extends RecyclerView.ViewHolder implements View.OnC
         int position = getAdapterPosition();
         Theme selectedTheme = list.get(position);
 
-        // Создаем новый Bundle и добавляем themeName и subThemes
-        Bundle bundle = new Bundle();
-        bundle.putString("themeName", selectedTheme.getTheme());
-        bundle.putParcelableArrayList("subThemes", new ArrayList<SubTheme>(selectedTheme.getSubThemes()));
-
         // Сохраняем themeName в SharedPreferences
         SharedPreferences sharedPreferences = mainActivity.getSharedPreferences("my_prefs", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString("mainTheme", selectedTheme.getTheme());
         editor.apply();
+
+        // Создаем новый Bundle и добавляем themeName и subThemes
+        Bundle bundle = new Bundle();
+        bundle.putString("themeName", selectedTheme.getTheme());
+        bundle.putParcelableArrayList("subThemes", new ArrayList<SubTheme>(selectedTheme.getSubThemes()));
 
         // Создаем новый экземпляр SubThemeFragment и добавляем Bundle в качестве аргументов
         SubThemeFragment subThemeFragment = new SubThemeFragment();

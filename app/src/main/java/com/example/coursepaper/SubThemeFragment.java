@@ -159,13 +159,9 @@ public class SubThemeFragment extends Fragment {
         }
     }
 
-
-
     private String getMainThemeNameFromSharedPreferences() {
         SharedPreferences sharedPreferences = getActivity().getSharedPreferences("my_prefs", Context.MODE_PRIVATE);
         return sharedPreferences.getString("mainTheme", "");
     }
 
 }
-
-
