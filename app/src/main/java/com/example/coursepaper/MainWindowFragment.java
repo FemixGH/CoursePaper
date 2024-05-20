@@ -1,8 +1,11 @@
 package com.example.coursepaper;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.text.InputType;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
@@ -11,11 +14,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
@@ -30,7 +36,9 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Objects;
 
 public class MainWindowFragment extends Fragment {
@@ -50,6 +58,9 @@ public class MainWindowFragment extends Fragment {
     private boolean isAnimating;
     private String selectedSubtheme;
     private TextView firstAuthorName;
+    private Button addTextButton;
+    private DatabaseReference lastAddedCommentRef;
+
 
 
     @Nullable
@@ -151,6 +162,21 @@ public class MainWindowFragment extends Fragment {
             }
         });
 
+        addTextButton = view.findViewById(R.id.add_text_button);
+        addTextButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                addTextToSubtheme();
+            }
+        });
+        Button editTextButton = view.findViewById(R.id.edit_text_button);
+        editTextButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                editLastAddedText();
+            }
+        });
+
 
 
         return view;
@@ -180,6 +206,125 @@ public class MainWindowFragment extends Fragment {
     private String getMainThemeNameFromSharedPreferences() {
         SharedPreferences sharedPreferences = getActivity().getSharedPreferences("my_prefs", Context.MODE_PRIVATE);
         return sharedPreferences.getString("mainTheme", "");
+    }
+    private String getSubThemeNameFromSharedPreferences(){
+        SharedPreferences sharedPreferences = getActivity().getSharedPreferences("my_prefs", Context.MODE_PRIVATE);
+        return sharedPreferences.getString("subTheme", "");
+    }
+    private void addTextToSubtheme() {
+        // Получить текущего пользователя
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser == null) {
+            // Пользователь не авторизован
+            return;
+        }
+        String userId = currentUser.getUid();
+
+        // Проверить, является ли текущий пользователь администратором
+        DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("users").child(userId);
+        userRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                boolean isAdmin = snapshot.child("isAdmin").getValue(boolean.class);
+                if (!isAdmin) {
+                    // Текущий пользователь не является администратором
+                    return;
+                }
+
+                // Проверить, есть ли уже текст в субтеме
+                DatabaseReference subthemeRef = FirebaseDatabase.getInstance().getReference("Discussions").child(getMainThemeNameFromSharedPreferences()).child(getSubThemeNameFromSharedPreferences()).child("comments");
+                subthemeRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+
+                        // Показать диалоговое окно для ввода текста
+                        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity());
+                        dialogBuilder.setTitle("Добавить текст");
+
+                        final EditText input = new EditText(getActivity());
+                        input.setInputType(InputType.TYPE_CLASS_TEXT);
+                        dialogBuilder.setView(input);
+
+                        dialogBuilder.setPositiveButton("Добавить", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int whichButton) {
+                                String text = input.getText().toString();
+                                if (!TextUtils.isEmpty(text)) {
+                                    // Добавить текст в субтему
+                                    Map<String, Object> comment = new HashMap<>();
+                                    comment.put("authorId", userId);
+                                    comment.put("text", text);
+                                    DatabaseReference newCommentRef = subthemeRef.push();
+                                    newCommentRef.setValue(comment);
+                                    lastAddedCommentRef = newCommentRef;
+                                }
+                            }
+                        });
+                        dialogBuilder.setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int whichButton) {
+                                // Отмена
+                            }
+                        });
+
+                        AlertDialog b = dialogBuilder.create();
+                        b.show();
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        // Обработать ошибку
+                    }
+                });
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                // Обработать ошибку
+            }
+        });
+    }
+    private void editLastAddedText() {
+        if (lastAddedCommentRef == null) {
+            // Нет последнего добавленного комментария
+            return;
+        }
+
+        // Показать диалоговое окно для редактирования текста
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity());
+        dialogBuilder.setTitle("Редактировать текст");
+
+        final EditText input = new EditText(getActivity());
+        input.setInputType(InputType.TYPE_CLASS_TEXT);
+        lastAddedCommentRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                String currentText = snapshot.child("text").getValue(String.class);
+                input.setText(currentText);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                // Обработать ошибку
+            }
+        });
+        dialogBuilder.setView(input);
+
+        dialogBuilder.setPositiveButton("Сохранить", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                String newText = input.getText().toString();
+                if (!TextUtils.isEmpty(newText)) {
+                    // Обновить текст в субтеме
+                    lastAddedCommentRef.child("text").setValue(newText);
+                }
+            }
+        });
+        dialogBuilder.setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                // Отмена
+            }
+        });
+
+        AlertDialog b = dialogBuilder.create();
+        b.show();
     }
 
 

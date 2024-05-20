@@ -134,7 +134,7 @@ public class SubThemeFragment extends Fragment {
             SubTheme newSubTheme = new SubTheme(subThemeName);
 
             // Add a comment with authorId and text
-            Comment newComment = new Comment(currentUserId, "This is a new sub-theme");
+            Comment newComment = new Comment(currentUserId, "");
             newSubTheme.getComments().add(newComment);
 
             // Add subTheme field to the newSubTheme object

@@ -32,7 +32,21 @@
             android:layout_width="280dp"
             android:layout_height="wrap_content"
             android:visibility="gone"
-            android:text="expanded_textexpanded_textexpanded_textexpanded_textexpanded_textexpanded_textexpanded_textexpanded_textexpanded_textexpanded_textexpanded_texpanded_text" />
+            />
+        <Button
+            android:id="@+id/add_text_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Добавить текст"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true" />
+        <Button
+            android:id="@+id/edit_text_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="редактировать"
+            android:layout_alignParentBottom="true"
+            android:layout_toRightOf="@id/add_text_button" />
 
     </LinearLayout>
 
