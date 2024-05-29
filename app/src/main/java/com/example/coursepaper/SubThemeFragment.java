@@ -26,6 +26,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class SubThemeFragment extends Fragment {
@@ -142,7 +143,14 @@ public class SubThemeFragment extends Fragment {
 
             String mainThemeName = getMainThemeNameFromSharedPreferences();
             databaseReference = FirebaseDatabase.getInstance().getReference("Discussions/" + mainThemeName + "/" + subThemeName);
-            databaseReference.setValue(newSubTheme, new DatabaseReference.CompletionListener() {
+
+            // Create a HashMap to store the data
+            HashMap<String, Object> subThemeData = new HashMap<>();
+            subThemeData.put("comments", newSubTheme.getComments());
+            subThemeData.put("subTheme", newSubTheme.getSubTheme());
+
+            // Set the data to the Firebase reference
+            databaseReference.setValue(subThemeData, new DatabaseReference.CompletionListener() {
                 @Override
                 public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
                     if (databaseError == null) {
@@ -158,6 +166,9 @@ public class SubThemeFragment extends Fragment {
             });
         }
     }
+
+
+
 
     private String getMainThemeNameFromSharedPreferences() {
         SharedPreferences sharedPreferences = getActivity().getSharedPreferences("my_prefs", Context.MODE_PRIVATE);

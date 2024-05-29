@@ -83,6 +83,23 @@
             android:visibility="gone"
             android:text="expanded_text" />
 
+        <Button
+            android:id="@+id/add_text_button_second"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Добавить текст"
+            android:visibility="gone"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true" />
+        <Button
+            android:id="@+id/edit_text_button_second"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="редактировать"
+            android:visibility="gone"
+            android:layout_alignParentBottom="true"
+            android:layout_toRightOf="@id/add_text_button" />
+
     </LinearLayout>
 
 </RelativeLayout>

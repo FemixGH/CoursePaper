@@ -43,7 +43,6 @@ import java.util.Objects;
 
 public class MainWindowFragment extends Fragment {
 
-
     private MainWindowFragmentBinding binding;
     private String themeName;
     private TextView collapsedText;
@@ -60,9 +59,8 @@ public class MainWindowFragment extends Fragment {
     private TextView firstAuthorName;
     private Button addTextButton;
     private DatabaseReference lastAddedCommentRef;
-    Button editTextButton;
-
-
+    private Button editTextButton;
+    private Button addTextButtonSecond;
 
     @Nullable
     @Override
@@ -72,78 +70,70 @@ public class MainWindowFragment extends Fragment {
 
         DrawerLayout drawer = ((MainActivity) getActivity()).getDrawerLayout();
 
-
         Bundle bundle = getArguments();
         if (bundle != null) {
             themeName = bundle.getString("themeName");
             ArrayList<SubTheme> subThemes = bundle.getParcelableArrayList("subThemes");
-
         }
 
         isLeftContainerExpanded = false;
         isRightContainerExpanded = false;
         isAnimating = false;
 
-
-//        SharedPreferences sharedPreferences = getActivity().getSharedPreferences("my_prefs", Context.MODE_PRIVATE);
         SharedPreferences sharedPreferences = getActivity().getSharedPreferences("my_prefs", Context.MODE_PRIVATE);
         String subTheme = sharedPreferences.getString("subTheme", "");
         String realTheme = sharedPreferences.getString("mainTheme", "");
 
-
         Log.d("DIRECTORY", realTheme + " " + subTheme);
-        // Initialize TextViews
-        collapsedText = view.findViewById(R.id.collapsed_text);
-        expandedText = view.findViewById(R.id.expanded_text);
 
-        // Initialize LinearLayout
-        textContainer = view.findViewById(R.id.text_container);
+        collapsedText = binding.collapsedText;
+        expandedText = binding.expandedText;
+        textContainer = binding.textContainer;
+        rightCollapsedText = binding.rightCollapsedText;
+        rightExpandedText = binding.rightExpandedText;
+        rightTextContainer = binding.rightTextContainer;
+        firstAuthorName = binding.firstAuthorName;
+        addTextButton = binding.addTextButton;
+        editTextButton = binding.editTextButton;
+        addTextButtonSecond = binding.addTextButtonSecond;
 
-        // Initialize GestureDetector
         gestureDetector = new GestureDetector(getActivity(), new GestureListener());
 
-        // Set OnTouchListener for LinearLayout
-        textContainer.setOnTouchListener((v, event) -> {
-            gestureDetector.onTouchEvent(event);
-            return true;
-        });
-        // Initialize TextViews for the right LinearLayout
-        rightCollapsedText = view.findViewById(R.id.right_collapsed_text);
-        rightExpandedText = view.findViewById(R.id.right_expanded_text);
 
-        // Initialize LinearLayout for the right container
-        rightTextContainer = view.findViewById(R.id.right_text_container);
-        firstAuthorName = view.findViewById(R.id.first_author_name);
-
-        // Set OnTouchListener for the right LinearLayout
-        rightTextContainer.setOnTouchListener((v, event) -> {
-            gestureDetector.onTouchEvent(event);
-            return true;
+        textContainer.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                gestureDetector.onTouchEvent(event);
+                return true;
+            }
         });
 
-        // Get discussion from Firebase
+        rightTextContainer.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                gestureDetector.onTouchEvent(event);
+                return true;
+            }
+        });
+
         DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Discussions").child(realTheme).child(subTheme).child("comments");
 
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-
-                // Итерируемся по всем комментариям в snapshot
                 for (DataSnapshot commentSnapshot : snapshot.getChildren()) {
-                    // Получаем значения полей authorId и text
                     String authorId = commentSnapshot.child("authorId").getValue(String.class);
                     String text = commentSnapshot.child("text").getValue(String.class);
                     collapsedText.setText(text);
                     expandedText.setText(text);
-                    DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("users").child(authorId);
 
-                    databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                    DatabaseReference authorReference = FirebaseDatabase.getInstance().getReference("users").child(authorId);
+                    authorReference.addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(@NonNull DataSnapshot snapshot) {
                             String authorName = snapshot.child("username").getValue(String.class);
                             firstAuthorName.setText(authorName);
                             Log.d("AUTHOR_NAME", authorName);
-                            // вы можете использовать authorName здесь
                         }
 
                         @Override
@@ -151,25 +141,17 @@ public class MainWindowFragment extends Fragment {
                             Log.e("Firebase", "Failed to read value.", error.toException());
                         }
                     });
-                    // Выводим текст комментария в лог
+
                     Log.d("COMMENTS", text);
                 }
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                // Обрабатываем ошибку
                 Log.e("Firebase", "Failed to read value.", error.toException());
             }
         });
 
-        // Initialize add text button
-        addTextButton = view.findViewById(R.id.add_text_button);
-
-// Initialize edit text button
-        editTextButton = view.findViewById(R.id.edit_text_button);
-
-// Check if the current user is an admin
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser != null) {
             DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("users").child(currentUser.getUid());
@@ -178,9 +160,9 @@ public class MainWindowFragment extends Fragment {
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     boolean isAdmin = snapshot.child("isAdmin").getValue(boolean.class);
                     if (isAdmin) {
-                        // If the user is an admin, make the buttons visible
                         addTextButton.setVisibility(View.VISIBLE);
                         editTextButton.setVisibility(View.VISIBLE);
+                        addTextButtonSecond.setVisibility(View.VISIBLE);
                     }
                 }
 
@@ -190,10 +172,18 @@ public class MainWindowFragment extends Fragment {
                 }
             });
         }
+
         addTextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 addTextToSubtheme();
+            }
+        });
+
+        addTextButtonSecond.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                addTextToSubthemeSecond();
             }
         });
 
@@ -204,8 +194,6 @@ public class MainWindowFragment extends Fragment {
             }
         });
 
-
-
         return view;
     }
 
@@ -214,7 +202,6 @@ public class MainWindowFragment extends Fragment {
         super.onResume();
         ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         ((AppCompatActivity) getActivity()).getSupportActionBar().setHomeButtonEnabled(true);
-
     }
 
     @Override
@@ -222,7 +209,6 @@ public class MainWindowFragment extends Fragment {
         super.onPause();
         ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         ((AppCompatActivity) getActivity()).getSupportActionBar().setHomeButtonEnabled(false);
-
     }
 
     @Override
@@ -230,47 +216,39 @@ public class MainWindowFragment extends Fragment {
         super.onDestroyView();
         binding = null;
     }
+
     private String getMainThemeNameFromSharedPreferences() {
         SharedPreferences sharedPreferences = getActivity().getSharedPreferences("my_prefs", Context.MODE_PRIVATE);
         return sharedPreferences.getString("mainTheme", "");
     }
-    private String getSubThemeNameFromSharedPreferences(){
+
+    private String getSubThemeNameFromSharedPreferences() {
         SharedPreferences sharedPreferences = getActivity().getSharedPreferences("my_prefs", Context.MODE_PRIVATE);
         return sharedPreferences.getString("subTheme", "");
     }
+
     private void addTextToSubtheme() {
-        // Получить текущего пользователя
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser == null) {
-            // Пользователь не авторизован
             return;
         }
         String userId = currentUser.getUid();
 
-        // Проверить, является ли текущий пользователь администратором
         DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("users").child(userId);
         userRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 boolean isAdmin = snapshot.child("isAdmin").getValue(boolean.class);
                 if (!isAdmin) {
-                    // Текущий пользователь не является администратором
                     addTextButton.setVisibility(View.GONE);
                     editTextButton.setVisibility(View.GONE);
-
-
                     return;
                 }
-                addTextButton.setVisibility(View.VISIBLE);
-                editTextButton.setVisibility(View.VISIBLE);
 
-                // Проверить, есть ли уже текст в субтеме
                 DatabaseReference subthemeRef = FirebaseDatabase.getInstance().getReference("Discussions").child(getMainThemeNameFromSharedPreferences()).child(getSubThemeNameFromSharedPreferences()).child("comments");
                 subthemeRef.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
-
-                        // Показать диалоговое окно для ввода текста
                         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity());
                         dialogBuilder.setTitle("Добавить текст");
 
@@ -281,17 +259,13 @@ public class MainWindowFragment extends Fragment {
                         dialogBuilder.setPositiveButton("Добавить", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int whichButton) {
                                 String text = input.getText().toString();
-                                if (!TextUtils.isEmpty(text)) {
-                                    // Добавить текст в субтему
-                                    Map<String, Object> comment = new HashMap<>();
-                                    comment.put("authorId", userId);
-                                    comment.put("text", text);
-                                    DatabaseReference newCommentRef = subthemeRef.push();
-                                    newCommentRef.setValue(comment);
-                                    lastAddedCommentRef = newCommentRef;
+                                if ((!TextUtils.isEmpty(text)) && snapshot.hasChild("0")) {
+                                    snapshot.getRef().child("0").child("text").setValue(text);
+                                    snapshot.getRef().child("0").child("authorId").setValue(userId);
                                 }
                             }
                         });
+
                         dialogBuilder.setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int whichButton) {
                                 // Отмена
@@ -315,13 +289,13 @@ public class MainWindowFragment extends Fragment {
             }
         });
     }
+
+
     private void editLastAddedText() {
         if (lastAddedCommentRef == null) {
-            // Нет последнего добавленного комментария
             return;
         }
 
-        // Показать диалоговое окно для редактирования текста
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity());
         dialogBuilder.setTitle("Редактировать текст");
 
@@ -345,11 +319,11 @@ public class MainWindowFragment extends Fragment {
             public void onClick(DialogInterface dialog, int whichButton) {
                 String newText = input.getText().toString();
                 if (!TextUtils.isEmpty(newText)) {
-                    // Обновить текст в субтеме
                     lastAddedCommentRef.child("text").setValue(newText);
                 }
             }
         });
+
         dialogBuilder.setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
                 // Отмена
@@ -360,40 +334,109 @@ public class MainWindowFragment extends Fragment {
         b.show();
     }
 
+    private void addTextToSubthemeSecond() {
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser == null) {
+            return;
+        }
+        String userId = currentUser.getUid();
+
+        DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("users").child(userId);
+        userRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                boolean isAdmin = snapshot.child("isAdmin").getValue(boolean.class);
+                if (!isAdmin) {
+                    addTextButton.setVisibility(View.GONE);
+                    editTextButton.setVisibility(View.GONE);
+                    addTextButtonSecond.setVisibility(View.GONE);
+                    return;
+                }
+
+                DatabaseReference subthemeRef = FirebaseDatabase.getInstance().getReference("Discussions").child(getMainThemeNameFromSharedPreferences()).child(getSubThemeNameFromSharedPreferences()).child("comments");
+                subthemeRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity());
+                        dialogBuilder.setTitle("Добавить текст");
+
+                        final EditText input = new EditText(getActivity());
+                        input.setInputType(InputType.TYPE_CLASS_TEXT);
+                        dialogBuilder.setView(input);
+
+                        dialogBuilder.setPositiveButton("Добавить", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int whichButton) {
+                                String text = input.getText().toString();
+                                if (!TextUtils.isEmpty(text)) {
+                                    Map<String, Object> comment = new HashMap<>();
+                                    comment.put("authorId", userId);
+                                    comment.put("text", text);
+                                    DatabaseReference newCommentRef = subthemeRef.push();
+                                    newCommentRef.setValue(comment);
+                                    lastAddedCommentRef = newCommentRef;
+
+                                    // Обновляем второго автора во втором комментарии
+                                    if (snapshot.getChildrenCount() >= 2) {
+                                        Iterator<DataSnapshot> iterator = snapshot.getChildren().iterator();
+                                        DataSnapshot firstCommentSnapshot = iterator.next();
+                                        DataSnapshot secondCommentSnapshot = iterator.next();
+                                        if (secondCommentSnapshot.child("authorId").getValue(String.class).isEmpty()) {
+                                            secondCommentSnapshot.getRef().child("authorId").setValue(userId);
+                                            secondCommentSnapshot.getRef().child("text").setValue(text);
+                                        }
+                                    }
+                                }
+                            }
+                        });
+
+                        dialogBuilder.setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int whichButton) {
+                                // Отмена
+                            }
+                        });
+
+                        AlertDialog b = dialogBuilder.create();
+                        b.show();
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        // Обработать ошибку
+                    }
+                });
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                // Обработать ошибку
+            }
+        });
+    }
+
 
     private class GestureListener extends GestureDetector.SimpleOnGestureListener {
-
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-            // Check swipe direction, container states, and animation state
             if (!isAnimating && e2.getX() - e1.getX() > 100 && !isRightContainerExpanded) {
-                // Swipe right to left on the left container
+                expandedText.setVisibility(View.VISIBLE);
+                collapsedText.setVisibility(View.GONE);
 
-                // Reset the right container if it's visible
                 if (isLeftContainerExpanded && rightExpandedText.getVisibility() == View.VISIBLE) {
                     rightExpandedText.setVisibility(View.GONE);
                     rightCollapsedText.setVisibility(View.VISIBLE);
                 }
 
-                // Set visibility of TextViews for the left container
-                expandedText.setVisibility(View.VISIBLE);
-                collapsedText.setVisibility(View.GONE);
-
-                // Create animation for the left container
                 AlphaAnimation alphaAnimation = new AlphaAnimation(0.0f, 1.0f);
-                alphaAnimation.setDuration(500); // You can adjust the duration of the animation as needed
+                alphaAnimation.setDuration(500);
 
-                // Set animation listener for the left container
                 alphaAnimation.setAnimationListener(new Animation.AnimationListener() {
                     @Override
                     public void onAnimationStart(Animation animation) {
-                        // Animation start
                         isAnimating = true;
                     }
 
                     @Override
                     public void onAnimationEnd(Animation animation) {
-                        // Animation end
                         isLeftContainerExpanded = true;
                         isRightContainerExpanded = false;
                         isAnimating = false;
@@ -401,41 +444,30 @@ public class MainWindowFragment extends Fragment {
 
                     @Override
                     public void onAnimationRepeat(Animation animation) {
-                        // Animation repeat
                     }
                 });
 
-                // Start animation for the left container
                 expandedText.startAnimation(alphaAnimation);
-
             } else if (!isAnimating && e1.getX() - e2.getX() > 100 && !isLeftContainerExpanded) {
-                // Swipe left to right on the right container
+                rightExpandedText.setVisibility(View.VISIBLE);
+                rightCollapsedText.setVisibility(View.GONE);
 
-                // Reset the left container if it's visible
                 if (isRightContainerExpanded && expandedText.getVisibility() == View.VISIBLE) {
                     expandedText.setVisibility(View.GONE);
                     collapsedText.setVisibility(View.VISIBLE);
                 }
 
-                // Set visibility of TextViews for the right container
-                rightExpandedText.setVisibility(View.VISIBLE);
-                rightCollapsedText.setVisibility(View.GONE);
-
-                // Create animation for the right container
                 AlphaAnimation alphaAnimation = new AlphaAnimation(0.0f, 1.0f);
-                alphaAnimation.setDuration(500); // You can adjust the duration of the animation as needed
+                alphaAnimation.setDuration(500);
 
-                // Set animation listener for the right container
                 alphaAnimation.setAnimationListener(new Animation.AnimationListener() {
                     @Override
                     public void onAnimationStart(Animation animation) {
-                        // Animation start
                         isAnimating = true;
                     }
 
                     @Override
                     public void onAnimationEnd(Animation animation) {
-                        // Animation end
                         isLeftContainerExpanded = false;
                         isRightContainerExpanded = true;
                         isAnimating = false;
@@ -443,17 +475,11 @@ public class MainWindowFragment extends Fragment {
 
                     @Override
                     public void onAnimationRepeat(Animation animation) {
-                        // Animation repeat
                     }
                 });
 
-                // Start animation for the right container
                 rightExpandedText.startAnimation(alphaAnimation);
-
             } else if ((e2.getX() - e1.getX() > 100 && isRightContainerExpanded) || (e1.getX() - e2.getX() > 100 && isLeftContainerExpanded)) {
-                // Swipe in the wrong direction or swipe on an already expanded container
-
-                // Set visibility of TextViews for the expanded container
                 if (isLeftContainerExpanded) {
                     expandedText.setVisibility(View.GONE);
                     collapsedText.setVisibility(View.VISIBLE);
@@ -462,14 +488,12 @@ public class MainWindowFragment extends Fragment {
                     rightCollapsedText.setVisibility(View.VISIBLE);
                 }
 
-                // Reset flags for tracking container states
                 isLeftContainerExpanded = false;
                 isRightContainerExpanded = false;
-
             }
 
             return true;
         }
     }
-
 }
+
