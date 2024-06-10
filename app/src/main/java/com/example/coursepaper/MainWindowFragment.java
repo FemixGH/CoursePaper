@@ -217,24 +217,30 @@ public class MainWindowFragment extends Fragment {
         databaseReference2.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                String authorId = snapshot.child("authorId").getValue(String.class);
+                // Check if the snapshot exists before getting the value
+                if (snapshot.exists()) {
+                    String authorId = snapshot.child("authorId").getValue(String.class);
 
-                DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("users").child(authorId);
-                userRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        String authorName = snapshot.child("username").getValue(String.class);
-                        if (secondAuthorTextText != ""){
-                        secondAuthorName.setText(authorName);
-                        Log.d("AUTHOR_NAME", authorName);
+                    DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("users").child(authorId);
+                    userRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            // Check if the snapshot exists before getting the value
+                            if (snapshot.exists()) {
+                                String authorName = snapshot.child("username").getValue(String.class);
+                                if (!secondAuthorTextText.isEmpty()){
+                                    secondAuthorName.setText(authorName);
+                                    Log.d("AUTHOR_NAME", authorName);
+                                }
+                            }
                         }
-                    }
 
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-                        Log.e("Firebase", "Failed to read value.", error.toException());
-                    }
-                });
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+                            Log.e("Firebase", "Failed to read value.", error.toException());
+                        }
+                    });
+                }
             }
 
             @Override
