@@ -116,7 +116,7 @@ public class MainFragment extends Fragment {
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(getContext(), "Failed to load data from Firebase", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Ошибка загрузки с БД", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -145,15 +145,15 @@ public class MainFragment extends Fragment {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (!snapshot.exists()) {
                     snapshot.getRef().setValue("");
-                    Toast.makeText(getContext(), "Theme added successfully", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "Тема успешно добавлена", Toast.LENGTH_SHORT).show();
                 } else {
-                    Toast.makeText(getContext(), "Theme already exists", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "Тема с таким именем уже существует", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(getContext(), "Failed to add theme", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Ошибка в добавлении темы", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -173,20 +173,20 @@ public class MainFragment extends Fragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setAdapter(new ThemeAdapterForDelete(getContext(), themeList, theme -> {
             AlertDialog.Builder confirmDialogBuilder = new AlertDialog.Builder(getContext());
-            confirmDialogBuilder.setTitle("Delete Theme");
-            confirmDialogBuilder.setMessage("Are you sure you want to delete this theme?");
-            confirmDialogBuilder.setPositiveButton("Yes", (dialog, which) -> {
+            confirmDialogBuilder.setTitle("Удалить тему");
+            confirmDialogBuilder.setMessage("Вы точно хотите удалить тему");
+            confirmDialogBuilder.setPositiveButton("Да", (dialog, which) -> {
                 AlertDialog deleteThemeDialog = (AlertDialog) dialog;
                 deleteThemeFromFirebase(theme, deleteThemeDialog);
             });
-            confirmDialogBuilder.setNegativeButton("No", (dialog, which) -> dialog.dismiss());
+            confirmDialogBuilder.setNegativeButton("Нет", (dialog, which) -> dialog.dismiss());
             AlertDialog confirmDialog = confirmDialogBuilder.create();
             registerDialog(confirmDialog);
             confirmDialog.show();
         }));
 
-        dialogBuilder.setTitle("Delete Theme");
-        dialogBuilder.setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
+        dialogBuilder.setTitle("Удалить тему");
+        dialogBuilder.setNegativeButton("Выход", (dialog, which) -> dialog.dismiss());
 
         AlertDialog deleteThemeDialog = dialogBuilder.create();
         registerDialog(deleteThemeDialog);
@@ -217,16 +217,16 @@ public class MainFragment extends Fragment {
         dialogBuilder.setView(dialogView);
 
         final EditText themeNameEditText = dialogView.findViewById(R.id.theme_name_edit_text);
-        dialogBuilder.setTitle("Add New Theme");
-        dialogBuilder.setPositiveButton("Add", (dialog, whichButton) -> {
+        dialogBuilder.setTitle("Добавить новую тему");
+        dialogBuilder.setPositiveButton("Добавить", (dialog, whichButton) -> {
             String themeName = themeNameEditText.getText().toString().trim();
             if (!themeName.isEmpty()) {
                 addThemeToFirebase(themeName);
             } else {
-                Toast.makeText(getContext(), "Theme name cannot be empty", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Поле не может быть пустым", Toast.LENGTH_SHORT).show();
             }
         });
-        dialogBuilder.setNegativeButton("Cancel", (dialog, whichButton) -> dialog.dismiss());
+        dialogBuilder.setNegativeButton("Выход", (dialog, whichButton) -> dialog.dismiss());
 
         AlertDialog b = dialogBuilder.create();
         registerDialog(b);

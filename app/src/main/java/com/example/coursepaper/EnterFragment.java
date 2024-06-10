@@ -33,7 +33,7 @@ public class EnterFragment extends Fragment {
             String email = binding.emailEditText.getText().toString();
             String password = binding.passwordEditText.getText().toString();
             if (email.isEmpty() || password.isEmpty()) {
-                Toast.makeText(getActivity(), "Fields can not be empty", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity(), "Поля не могут быть пустыми", Toast.LENGTH_SHORT).show();
             } else {
                 FirebaseAuth.getInstance().signInWithEmailAndPassword(email, password)
                         .addOnCompleteListener(task -> {
@@ -44,7 +44,7 @@ public class EnterFragment extends Fragment {
                                         .replace(R.id.fragment_container, mainFragment)
                                         .commit();
                             } else {
-                                Toast.makeText(getActivity(), "Login failed", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getActivity(), "Вход не удался", Toast.LENGTH_SHORT).show();
                             }
                         });
             }

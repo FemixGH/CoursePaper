@@ -27,8 +27,6 @@
         android:hint="@string/password"
         android:inputType="textPassword" />
 
-
-
     <Button
         android:id="@+id/login_button"
         android:layout_width="wrap_content"

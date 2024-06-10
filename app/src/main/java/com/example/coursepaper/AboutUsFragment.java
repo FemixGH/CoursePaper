@@ -60,8 +60,8 @@ public class AboutUsFragment extends Fragment {
         if (ContextCompat.checkSelfPermission(getActivity(), android.Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
             // Create a notification channel for Android 8.0 (Oreo) and higher
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                CharSequence name = "About Us Channel";
-                String description = "This channel is used for About Us notifications";
+                CharSequence name = "О нас";
+                String description = "Бесполезное уведомление";
                 int importance = NotificationManager.IMPORTANCE_DEFAULT;
                 NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
                 channel.setDescription(description);
@@ -72,8 +72,8 @@ public class AboutUsFragment extends Fragment {
             // Create a notification and show it
             NotificationCompat.Builder builder = new NotificationCompat.Builder(getActivity(), CHANNEL_ID)
                     .setSmallIcon(R.drawable.cat) // Make sure ic_notification is a valid drawable resource
-                    .setContentTitle("About Us")
-                    .setContentText("Welcome to the About Us page!")
+                    .setContentTitle("О нас")
+                    .setContentText("Такие пироги")
                     .setPriority(NotificationCompat.PRIORITY_DEFAULT);
 
             NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getActivity());
@@ -120,8 +120,8 @@ public class AboutUsFragment extends Fragment {
         if (ContextCompat.checkSelfPermission(getActivity(), android.Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
             // Create a notification channel for Android 8.0 (Oreo) and higher
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                CharSequence name = "About Us Channel";
-                String description = "This channel is used for About Us notifications";
+                CharSequence name = "о нас";
+                String description = "Ну это уведомление, что с него взять";
                 int importance = NotificationManager.IMPORTANCE_DEFAULT;
                 NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
                 channel.setDescription(description);
@@ -132,8 +132,8 @@ public class AboutUsFragment extends Fragment {
             // Create a notification and show it
             NotificationCompat.Builder builder = new NotificationCompat.Builder(getActivity(), CHANNEL_ID)
                     .setSmallIcon(R.drawable.cat) // Make sure ic_notification is a valid drawable resource
-                    .setContentTitle("About Us")
-                    .setContentText("Welcome to the About Us page!")
+                    .setContentTitle("О нас")
+                    .setContentText("ХЗ!")
                     .setPriority(NotificationCompat.PRIORITY_DEFAULT);
 
             NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getActivity());

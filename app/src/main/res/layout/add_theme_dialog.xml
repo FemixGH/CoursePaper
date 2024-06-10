@@ -8,6 +8,6 @@
         android:id="@+id/theme_name_edit_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Theme Name" />
+        android:hint="Имя темы" />
 
 </LinearLayout>

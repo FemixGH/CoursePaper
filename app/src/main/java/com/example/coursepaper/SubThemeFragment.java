@@ -111,16 +111,16 @@ public class SubThemeFragment extends Fragment {
         dialogBuilder.setView(dialogView);
 
         final EditText subThemeNameEditText = dialogView.findViewById(R.id.sub_theme_name_edit_text);
-        dialogBuilder.setTitle("Add New Sub-Theme");
-        dialogBuilder.setPositiveButton("Add", (dialog, whichButton) -> {
+        dialogBuilder.setTitle("Добавить новую субтему");
+        dialogBuilder.setPositiveButton("Добавить", (dialog, whichButton) -> {
             String subThemeName = subThemeNameEditText.getText().toString().trim();
             if (!subThemeName.isEmpty()) {
                 addSubThemeToFirebase(subThemeName);
             } else {
-                Toast.makeText(getContext(), "Sub-theme name cannot be empty", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Субтема не может быть пустой", Toast.LENGTH_SHORT).show();
             }
         });
-        dialogBuilder.setNegativeButton("Cancel", (dialog, whichButton) -> dialog.dismiss());
+        dialogBuilder.setNegativeButton("Выход", (dialog, whichButton) -> dialog.dismiss());
 
         AlertDialog b = dialogBuilder.create();
         b.show();
@@ -154,7 +154,7 @@ public class SubThemeFragment extends Fragment {
                 @Override
                 public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
                     if (databaseError == null) {
-                        Toast.makeText(getContext(), "Sub-theme added successfully", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), "Субтема добавлена успешно", Toast.LENGTH_SHORT).show();
                         // Add the new sub-theme to the list
                         subThemes.add(newSubTheme);
                         // Notify the adapter that the data has changed
