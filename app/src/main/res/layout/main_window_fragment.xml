@@ -2,19 +2,20 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainWindowFragment">
+    tools:context=".MainWindowFragment"
+    android:background="@color/white_gray">
 
     <LinearLayout
         android:id="@+id/text_container"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:background="@color/yellow">
+        android:background="@color/gray"
+        android:orientation="vertical">
 
         <TextView
+            android:id="@+id/first_author_name"
             android:layout_width="match_parent"
             android:layout_height="30dp"
-            android:id="@+id/first_author_name"
             android:gravity="center"
 
             />
@@ -29,26 +30,27 @@
 
         <TextView
             android:id="@+id/expanded_text"
-            android:layout_width="280dp"
+            android:layout_width="250dp"
             android:layout_height="wrap_content"
-            android:visibility="gone"
-            />
+            android:visibility="gone" />
+
         <Button
             android:id="@+id/add_text_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Добавить текст"
-            android:visibility="gone"
             android:layout_alignParentBottom="true"
-            android:layout_centerHorizontal="true" />
+            android:layout_centerHorizontal="true"
+            android:text="Добавить текст"
+            android:visibility="gone" />
+
         <Button
             android:id="@+id/edit_text_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="редактировать"
-            android:visibility="gone"
             android:layout_alignParentBottom="true"
-            android:layout_toRightOf="@id/add_text_button" />
+            android:layout_toRightOf="@id/add_text_button"
+            android:text="редактировать"
+            android:visibility="gone" />
 
     </LinearLayout>
 
@@ -56,16 +58,15 @@
         android:id="@+id/right_text_container"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:background="@color/yellow"
-        android:layout_alignParentRight="true">
-
+        android:layout_alignParentRight="true"
+        android:background="@color/gray"
+        android:orientation="vertical">
 
 
         <TextView
+            android:id="@+id/second_author_name"
             android:layout_width="match_parent"
             android:layout_height="30dp"
-            android:id="@+id/second_author_name"
             android:gravity="center" />
 
         <TextView
@@ -73,32 +74,32 @@
             android:layout_width="120dp"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:ellipsize="end"
-            android:text="@string/collapsed_text" />
+            android:ellipsize="end" />
 
         <TextView
             android:id="@+id/right_expanded_text"
-            android:layout_width="280dp"
+            android:layout_width="250dp"
             android:layout_height="wrap_content"
-            android:visibility="gone"
-            android:text="expanded_text" />
+            android:visibility="gone" />
 
         <Button
-            android:id="@+id/add_text_button_second"
+            android:id="@+id/add_text_button2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
             android:text="Добавить текст"
-            android:visibility="gone"
-            android:layout_alignParentBottom="true"
-            android:layout_centerHorizontal="true" />
+            android:visibility="gone" />
+
         <Button
-            android:id="@+id/edit_text_button_second"
+            android:id="@+id/edit_text_button2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="редактировать"
-            android:visibility="gone"
             android:layout_alignParentBottom="true"
-            android:layout_toRightOf="@id/add_text_button" />
+            android:layout_toRightOf="@id/add_text_button"
+            android:text="редактировать"
+            android:visibility="gone" />
+
 
     </LinearLayout>
 
